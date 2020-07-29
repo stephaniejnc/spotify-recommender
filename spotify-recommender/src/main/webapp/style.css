@@ -118,3 +118,24 @@ nav {
 .toggle .line3 {
   transform: rotate(45deg) translate(-5px, -6px);
 }
+
+#login {
+  display: inline-block;
+  height: 30px;
+  width: 100px;
+  font-family: 'Montserrat', sans-serif;
+  border-radius: 10px;
+  padding: 0.35em 1.2em;
+  margin: 0 0.3em 0.3em 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-weight: 300;
+  color:#42474b;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+#login:hover {
+  color: #ffffff;
+  background-color: #1ed760;
+}

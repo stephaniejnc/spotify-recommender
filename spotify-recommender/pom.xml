@@ -23,7 +23,20 @@
       <version>4.0.1</version>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>se.michaelthelin.spotify</groupId>
+      <artifactId>spotify-web-api-java</artifactId>
+      <version>6.2.0</version>
+    </dependency>
   </dependencies>
+
+  <repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
@@ -35,7 +48,7 @@
         <version>2.2.0</version>
         <configuration>
           <!-- TODO: set project ID. -->
-          <deploy.projectId>YOUR_PROJECT_ID_HERE</deploy.projectId>
+          <deploy.projectId>projectId</deploy.projectId>
           <deploy.version>1</deploy.version>
         </configuration>
       </plugin>

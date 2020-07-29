@@ -1,5 +1,4 @@
 function navSlideMobile() {
-    console.log("hello");
     const burger = document.querySelector(".burger");
     const nav = document.querySelector(".nav-links");
     const navLinks = document.querySelectorAll(".nav-links li")
@@ -27,5 +26,22 @@ function navSlideMobile() {
 }
 
 navSlideMobile();
+
+// username and (refreshed) OAuth token
+// var user = 'arixena';
+// var token = '';
+
+// // fetch my user playlists
+// fetch('https://api.spotify.com/v1/users/' + user + '/playlists', {
+//   headers: {
+//   'Authorization': ' Bearer ' + token,
+//   'Accept': 'application/json',
+//   'Content-Type': 'application/json',
+//   },
+// }).then(response => {
+//   console.log(response.json());
+// }).catch(response => {
+//   console.log(response.json());
+// })
 
 
