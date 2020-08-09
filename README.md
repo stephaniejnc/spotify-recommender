@@ -5,4 +5,4 @@
 #### Run locally 
 - Navigate to working directory 
 - In terminal, run 'node server.js'
-- Application should be running on local host port 888
+- Application should be running on local host port 8888
