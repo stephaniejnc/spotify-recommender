@@ -14,14 +14,6 @@ app.use(express.static(__dirname + '/public'))
 
 app.use('/', indexRouter)
 
-var token = ""
-var user = ""
-
-const getToken = () => {
-  return token
-}
-
-exports.getToken = getToken
 
 /**
  * This is an example of a basic node.js script that performs
@@ -33,13 +25,12 @@ exports.getToken = getToken
  */
 
 var request = require('request'); // "Request" library
-request = require ('request-promise')
 var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
-var client_id = '2b528ae73678448f8ce4ab753af22e52'; // Your client id
-var client_secret = '2ea1546f288943c7800cc78f6de59f0d'; // Your secret
+var client_id = ''; // Your client id
+var client_secret = ''; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 
 /**
@@ -114,10 +105,6 @@ app.get('/callback', function(req, res) {
 
         var access_token = body.access_token,
             refresh_token = body.refresh_token;
-        console.log(body)
-        token = access_token
-        console.log("token")
-        console.log(token)
 
         var options = {
           url: 'https://api.spotify.com/v1/me',
@@ -128,9 +115,6 @@ app.get('/callback', function(req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function(error, response, body) {
           console.log(body);
-          user = body.id;
-          console.log(user);
-          getPlaylists();
         });
 
         // we can also pass the token to the browser to make requests from there
@@ -172,29 +156,6 @@ app.get('/refresh_token', function(req, res) {
     }
   });
 });
-
-
-
-const playlistOptions = {
-  url: 'https://api.spotify.com/v1/users/' + user + '/playlists',
-  method: 'GET',
-  json: true,
-  headers: {
-      'Authorization': ' Bearer ' + token,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-  }
-}
-
-var getPlaylists = function() {
-request(playlistOptions)
-  .then(function (response) {
-    console.log(response.json)
-  })
-  .catch(function (err) {
-    console.log(err)
-})
-}
 
 console.log('Listening on port 8888')
 app.listen(process.env.PORT || 8888)
