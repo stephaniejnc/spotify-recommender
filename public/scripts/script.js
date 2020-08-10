@@ -13,10 +13,12 @@ console.log(hash);
 // assign a redirect in next line 
 window.location.hash = '';
 
-// Set token
+// Set token and double check
 let access_token = hash.access_token;
 let refresh_token = hash.refresh_token;
 let user = hash.user;
 console.log(access_token);
 console.log(user);
 console.log(refresh_token);
+
+// Fetch playlists if needed from URL hash
