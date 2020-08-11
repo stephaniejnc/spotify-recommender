@@ -14,6 +14,38 @@ app.use(express.static(__dirname + '/public'))
 
 app.use('/', indexRouter)
 
+var token
+var user
+
+function assign_global(access_token, user_id) {
+  token = access_token
+  user = user_id
+  console.log(`global variables are: ${token} and ${user}`)
+  // these produce values
+}
+
+
+// user and token undefined here:(
+const playlistOptions = {
+  url: `https://api.spotify.com/v1/users/${user}/playlists`,
+  method: 'GET',
+  json: true,
+  headers: {
+      'Authorization': `Bearer: ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+  }
+}
+
+var getPlaylists = function() {
+request(playlistOptions)
+  .then(function (response) {
+    console.log(response.json)
+  })
+  .catch(function (err) {
+    console.log(err)
+})
+}
 
 /**
  * This is an example of a basic node.js script that performs
@@ -25,6 +57,7 @@ app.use('/', indexRouter)
  */
 
 var request = require('request'); // "Request" library
+request = require ('request-promise')
 var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
@@ -105,6 +138,10 @@ app.get('/callback', function(req, res) {
 
         var access_token = body.access_token,
             refresh_token = body.refresh_token;
+        
+        console.log(body)
+        token = access_token
+        console.log(`Token: ${token}`)
 
         var options = {
           url: 'https://api.spotify.com/v1/me',
@@ -113,23 +150,30 @@ app.get('/callback', function(req, res) {
         };
 
         // use the access token to access the Spotify Web API
+        // we can also pass the token to the browser to make requests from there
+
         request.get(options, function(error, response, body) {
           console.log(body);
-        });
-
-        // we can also pass the token to the browser to make requests from there
-        res.redirect('/#' +
+          // user = body.id;
+          // console.log(user);
+          // user is defined here and is correct
+          assign_global(access_token, body.id)
+          getPlaylists();
+          res.redirect('/#' +
           querystring.stringify({
             access_token: access_token,
-            refresh_token: refresh_token
+            refresh_token: refresh_token,
+            user: body.id
+            // these three all have values!
           }));
+        });
       } else {
         res.redirect('/#' +
           querystring.stringify({
             error: 'invalid_token'
           }));
       }
-    });
+    })
   }
 });
 
