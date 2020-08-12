@@ -1,14 +1,17 @@
-<div class="container">
-    <div id="login">
+<div class="background">
+    <div class="button-align" style="text-align:center;">
       <h1>This is an example of the Authorization Code flow</h1>
-      <a href="/login" class="btn btn-primary">Log in with Spotify</a>
+      <a href="/login" class="button">Log in with Spotify</a>
+      <!-- <br><br><a href="https://www.spotify.com/signup/" class="button">Sign up with Spotify</a> -->
     </div>
     <div id="loggedin">
       <div id="user-profile">
       </div>
       <div id="oauth">
       </div>
-      <button class="btn btn-default" id="obtain-new-token">Obtain new token using the refresh token</button>
+      <a href="/userhome_loggedin" class="button">Go to your playlist recommendation dashboard</a>
+      <a href="/insights_loggedin" class="button">Go to your spotify insights</a>
+      <button class="button-align" id="obtain-new-token">Obtain new token using the refresh token</button>
     </div>
   </div>
 

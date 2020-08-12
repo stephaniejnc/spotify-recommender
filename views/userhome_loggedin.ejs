@@ -1,0 +1,48 @@
+<nav>
+    <div class="logo">
+    Spotify recommender
+    </div>
+    <ul class="nav-links">
+    <li><a href="index.html">about</a></li>
+    <li><a href="userhome_loggedin.html" class="active">user home</a></li>
+    <li><a href="insights_loggedin.html">insights</a></li>
+    </ul>
+    <div class="burger">
+    <div class="line1"></div>
+    <div class="line2"></div>
+    <div class="line3"></div>
+    </div>
+</nav>
+
+<div class="background">
+    <div class="content">
+    <!-- main site content goes here -->
+    <div class="center-heading">
+        Song Recommendation Dashboard      
+    </div>
+    <div class="playlist-select">
+        <h1><b>Select a playlist</b></h1>
+        <br>
+        
+        <!-- Retrieve playlist content from Datastore -->
+
+            <ul id="list-of-playlists">
+                <li><a href="userhome_rec.html">Playlist 1</a></li>
+                <li><a href="userhome_rec.html">Playlist 2</a></li>
+                <li><a href="userhome_rec.html">Playlist 3</a></li>
+            </ul>
+    </div> 
+    
+    <div class="button-align" style="text-align:center;">
+        <br><a href="index.html" class="button">Log out of Spotify</a>
+    </div>
+    </div>
+</div>
+
+<!-- Can use later to populate playlists on load
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        getPlaylist();
+    }, false);
+</script>
+-->
