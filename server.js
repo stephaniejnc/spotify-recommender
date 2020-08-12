@@ -14,37 +14,14 @@ app.use(express.static(__dirname + '/public'))
 
 app.use('/', indexRouter)
 
-var token
-var user
+var token = "1"
+var user = "2"
 
 function assign_global(access_token, user_id) {
   token = access_token
   user = user_id
   console.log(`global variables are: ${token} and ${user}`)
   // these produce values
-}
-
-
-// user and token undefined here:(
-const playlistOptions = {
-  url: `https://api.spotify.com/v1/users/${user}/playlists`,
-  method: 'GET',
-  json: true,
-  headers: {
-      'Authorization': `Bearer: ${token}`,
-      'Accept': 'application/json',
-      'Content-Type': 'application/json'
-  }
-}
-
-var getPlaylists = function() {
-request(playlistOptions)
-  .then(function (response) {
-    console.log(response.json)
-  })
-  .catch(function (err) {
-    console.log(err)
-})
 }
 
 /**
@@ -158,7 +135,6 @@ app.get('/callback', function(req, res) {
           // console.log(user);
           // user is defined here and is correct
           assign_global(access_token, body.id)
-          getPlaylists();
           res.redirect('/#' +
           querystring.stringify({
             access_token: access_token,
@@ -166,7 +142,9 @@ app.get('/callback', function(req, res) {
             user: body.id
             // these three all have values!
           }));
-        });
+        }).then((res) => {
+          getPlaylists();
+        })
       } else {
         res.redirect('/#' +
           querystring.stringify({
@@ -200,6 +178,28 @@ app.get('/refresh_token', function(req, res) {
     }
   });
 });
+
+  
+function getPlaylists() {
+
+  // user and token undefined here:(
+  var playlistOptions = {
+    url: `https://api.spotify.com/v1/users/${user}/playlists`,
+    headers: {
+        'Authorization': `Bearer: ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+    }
+  }
+  
+  request(playlistOptions)
+    .then(function (response) {
+      console.log(response.json)
+    })
+    .catch(function (err) {
+      console.log(err)
+  })
+  }
 
 console.log('Listening on port 8888')
 app.listen(process.env.PORT || 8888)
