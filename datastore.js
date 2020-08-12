@@ -3,7 +3,7 @@ const {Datastore} = require('@google-cloud/datastore');
 
 async function quickStart() {
   // Your Google Cloud Platform project ID
-  const projectId = 'spotify-recommender-284805';
+  const projectId = 'jchiu-sps-summer20';
 
   // Creates a client
   const datastore = new Datastore({
