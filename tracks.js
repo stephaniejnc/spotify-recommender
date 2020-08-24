@@ -19,8 +19,20 @@ module.exports = function(config) {
         // callback(error, tracks);
     }
 
-    function addTrack() {
+    function addTrack(album, artists, audio_feature, name, external_urls, spotify_id, callback) {
+        var entity = {
+            key: datastore.key('Track'),
+            data: {
+                album: album,
+                artists: artists,
+                audio_feature: audio_feature,
+                name: name,
+                external_urls: external_urls,
+                spotify_id: spotify_id
+            }
+        };
 
+        datastore.save(callback);
     }
 
     return {
