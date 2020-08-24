@@ -48,6 +48,18 @@ body {
   box-shadow: 2px 4px 25px rgba(0, 0, 0, .1);
 }
 
+.grid-item-tracks {
+  height: 400px;
+  flex-basis: 80%;
+  -ms-flex: auto;
+  width: 259px;
+  position: relative;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  box-shadow: 2px 4px 25px rgba(0, 0, 0, .1);
+}
+
 .grid-row a {
   text-decoration: none;
 }

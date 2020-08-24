@@ -11,6 +11,11 @@ router.get('/userhome', (req, res) => {
     res.render('userhome', {layout: 'layouts/layout'})
 })
 
+router.get('/playlist', (req, res) => {
+    console.log('Get request for userhome received')
+    res.render('playlist', {layout: 'layouts/layout'})
+})
+
 router.get('/insights', (req, res) => {
     console.log('Get request for insights received')
     res.render('insights', {layout: 'layouts/layout'})

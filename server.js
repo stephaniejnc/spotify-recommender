@@ -127,7 +127,7 @@ app.get('/callback', function(req, res) {
           // console.log(user);
           // user is defined here and is correct
           assign_global(access_token, body.id)
-          res.redirect('/#' +
+          res.redirect('userhome/#' +
           querystring.stringify({
             access_token: access_token,
             refresh_token: refresh_token,

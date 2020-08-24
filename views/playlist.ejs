@@ -1,0 +1,134 @@
+<nav>
+    <div class="logo">
+      <h3>spotify recommender</h3>
+    </div>
+      <ul class="nav-links">
+        <li><a href="/">about</a></li>
+        <li><a href="/userhome" class="active">user home</a></li>
+        <li><a href="/insights">insights</a></li>
+      </ul>
+      <div class="burger">
+        <div class="line1"></div>
+        <div class="line2"></div>
+        <div class="line3"></div>
+    </div>
+  </nav> 
+  
+  <div id="root"></div>
+  
+<script>
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    function clearQuery() {
+      var uri = window.location.toString();
+      if (uri.indexOf("?") > 0) {
+      var clean_uri = uri.substring(0, uri.indexOf("?"));
+      window.history.replaceState({}, document.title, clean_uri);
+      }  
+    }
+
+    var playlist_id = getParameterByName('playlist')
+    console.log(playlist_id)
+    var access_token = getParameterByName('access');
+    console.log(access_token)
+    clearQuery()
+
+    const app = document.getElementById('root')
+        const container = document.createElement('div')
+        container.setAttribute('class', 'container')
+
+        const grid = document.createElement('div')
+        grid.setAttribute('class', 'grid-row')
+
+        app.append(container)
+        app.append(grid)
+        
+    fetch(`https://api.spotify.com/v1/playlists/${playlist_id}`, {
+        headers: {
+            'Authorization': ' Bearer ' + access_token,
+        }
+    })
+    .then(response => {
+      if (response.status != 200) {
+      console.log(`Error ${response.status}`)
+      }
+    return response.json()
+    })
+    .then(playlist => {
+      playlist.tracks.items.forEach(item => {
+        console.log(item)
+        // create div with card grid-item and wrapper
+        const gridItem = document.createElement('div')
+        gridItem.setAttribute('class', 'grid-item')
+        const gridItemWrapper = document.createElement('div')
+        gridItemWrapper.setAttribute('class', 'grid-item-wrapper')
+        gridItem.appendChild(gridItemWrapper)
+
+        // create grid-item container
+        const gridItemContainer = document.createElement('div')
+        gridItemContainer.setAttribute('class', 'grid-item-container')
+        gridItemWrapper.appendChild(gridItemContainer)
+
+        // create grid-item image
+        const gridImage = document.createElement('div')
+        gridImage.setAttribute('class', 'grid-image-top')
+        var trackImage = item.track.album.images[0]
+        if (item.track.album.images[0]) {
+        gridImage.style.backgroundImage = `url(${trackImage.url})`
+        }
+        gridItemContainer.appendChild(gridImage)
+        
+        // create grid-item content
+        const gridContent = document.createElement('div')
+        gridContent.setAttribute('class', 'grid-item-content')
+        gridItemContainer.appendChild(gridContent)
+
+        // create span and set text to playlist title
+        const title = document.createElement('span')
+        title.setAttribute('class', 'item-title')
+        title.textContent = item.track.album.name
+
+        // create span and set text to track artist name
+        const tracks = document.createElement('span')
+        tracks.setAttribute('class', 'item-category')
+        tracks.textContent = `${item.track.album.artists[0].name}`
+
+        // create span and set text to playlist description
+        const description = document.createElement('span')
+        description.textContent = millisToMinutesAndSeconds(item.track.duration_ms)
+
+        // // create span for more info/view playlist
+        // const viewPlaylist = document.createElement('a')
+        // viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`
+        // viewPlaylist.setAttribute('id', 'playlist-id')
+        // viewPlaylist.setAttribute('class', 'more-info')
+        // viewPlaylist.textContent = "select playlist"
+
+      // append
+      gridContent.appendChild(title)
+      gridContent.appendChild(tracks)
+      gridContent.appendChild(description)
+      // gridContent.appendChild(viewPlaylist)
+      grid.append(gridItem)
+      });
+    })
+    .catch(err => {
+        console.log(err)
+    })
+
+
+  function millisToMinutesAndSeconds(millis) {
+  var minutes = Math.floor(millis / 60000);
+  var seconds = ((millis % 60000) / 1000).toFixed(0);
+  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  }
+
+</script>
