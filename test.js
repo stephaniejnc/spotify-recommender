@@ -19,14 +19,13 @@ var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
-var config = require('./config');
-var tracks = require('./tracks')(config);
+var tracks = require('./tracks')();
 
 app.use(express.static(__dirname + '/public'))
    .use(cors())
    .use(cookieParser());
 
-app.get('/test', function(req, res) {
+app.get('/test', function(req, res, next) {
     // Get all tracks in a playlist
     tracks.getTracksByPlaylist('myPlaylist123', function(err, tracks) {
         if (err) return next(err);
