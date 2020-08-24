@@ -6,37 +6,44 @@ module.exports = function(config) {
         projectId: projectId,
     });
 
-    function getTracksById(trackId, callback) {
-        var query = datastore.createQuery(['Track']);
+    function getTracksByPlaylist(playlist_id, callback) {
+        var query = datastore.createQuery(['Track']).filter('playlist_id', '=', playlist_id);
         datastore.runQuery(query, (err, tracks) => callback(err, tracks, datastore.KEY));
-        // var error = null;
-        // var tracks = [
-        //     {id: 1, title: 'Love Story', artist: ['Taylor Swift']},
-        //     {id: 2, title: 'Shake It Off', artist: ['Taylor Swift']},
-        //     {id: 3, title: 'The Story Of My Life', artist: ['Niall Horan', 'Zayn Malik', 'Liam Payne', 'Harry Styles', 'Louis Tomlinson']}
-        // ]
-        // console.log('Tracks for ', playlistId);
-        // callback(error, tracks);
     }
 
-    function addTrack(album, artists, audio_feature, name, external_urls, spotify_id, callback) {
+    function addTrack(artists, audio_features, name, track_id, playlist_id, callback) {
         var entity = {
             key: datastore.key('Track'),
             data: {
-                album: album,
                 artists: artists,
-                audio_feature: audio_feature,
+                audio_features: audio_features,
                 name: name,
-                external_urls: external_urls,
-                spotify_id: spotify_id
+                track_id: track_id,
+                playlist_id: playlist_id
             }
         };
 
-        datastore.save(callback);
+        datastore.save(entity, callback);
+    }
+
+    function getTrackByTrackId(track_id, callback) {
+        var query = datastore.createQuery(['Track']).filter('track_id', '=', track_id);
+        datastore.runQuery(query, (err, track) => callback(err, track, datastore.KEY));
+    }
+
+    async function getAudioFeaturesById(track_id) {
+        console.log('Getting audio features...');
+        var query = datastore.createQuery(['Track']).filter('track_id', '=', track_id);
+        const returnedTracks = await datastore.runQuery(query);
+        var audio_features = returnedTracks[0][0].audio_features;
+        console.log('Success!')
+        return {audio_features};
     }
 
     return {
-        getTracksById: getTrackById,
-        addTrack: addTrack
+        getTracksByPlaylist: getTracksByPlaylist,
+        addTrack: addTrack,
+        getTrackByTrackId: getTrackByTrackId,
+        getAudioFeaturesById: getAudioFeaturesById
     };
 };
