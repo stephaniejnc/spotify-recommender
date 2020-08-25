@@ -1,3 +1,4 @@
+// DEPRECATED
 require('dotenv').config();
 // express router
 const router = require('express').Router();
