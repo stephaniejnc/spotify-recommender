@@ -17,24 +17,26 @@ app.use(express.static(__dirname + '/public'))
 app.use('/', indexRouter)
 app.use('/playlist/', playlistRouter);
 
-
-/**
- * This is an example of a basic node.js script that performs
- * the Authorization Code oAuth2 flow to authenticate against
- * the Spotify Accounts.
- *
- * For more information, read
- * https://developer.spotify.com/web-api/authorization-guide/#authorization_code_flow
- */
+// Authorization Code oAuth2 flow to authenticate against Spotify Accounts.
 
 var request = require('request'); // "Request" library
+request = require('request-promise')
 var cors = require('cors');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
+const { ESRCH } = require('constants')
 
 var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+
+var token = "1"
+var user = "2"
+
+function assign_global(access_token, user_id) {
+  token = access_token
+  user = user_id
+}
 
 /**
  * Generates a random string containing numbers and letters
@@ -106,9 +108,11 @@ app.get('/callback', function (req, res) {
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
 
-        var access_token = body.access_token,
-          refresh_token = body.refresh_token;
-
+        var access_token = body.access_token;
+        refresh_token = body.refresh_token;
+        console.log(body);
+        token = access_token;
+        console.log(`Token: ${token}`);
         var options = {
           url: 'https://api.spotify.com/v1/me',
           headers: { 'Authorization': 'Bearer ' + access_token },
@@ -118,14 +122,19 @@ app.get('/callback', function (req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function (error, response, body) {
           console.log(body);
-        });
-
-        // we can also pass the token to the browser to make requests from there
-        res.redirect('/#' +
-          querystring.stringify({
-            access_token: access_token,
-            refresh_token: refresh_token
-          }));
+          // user = body.id;
+          // console.log(user);
+          // user is defined here and is correct
+          assign_global(access_token, body.id)
+          // we can also pass the token to the browser to make requests from there
+          res.redirect('/#' +
+            querystring.stringify({
+              access_token: access_token,
+              refresh_token: refresh_token,
+              user: body.id
+              // these three all have values!
+            }));
+        })
       } else {
         res.redirect('/#' +
           querystring.stringify({
@@ -160,7 +169,28 @@ app.get('/refresh_token', function (req, res) {
   });
 });
 
+app.get('/playlists', function (req, res) {
 
+  getPlaylists();
 
+  function getPlaylists() {
+
+    // user and token undefined here:(
+    var playlistOptions = {
+      url: `https://api.spotify.com/v1/users/${user}/playlists`,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    }
+
+    request.get(playlistOptions, function (error, response, body) {
+      console.log(body)
+      res.send(body)
+    })
+  }
+
+})
 console.log('Listening on port 8888')
 app.listen(process.env.PORT || 8888)

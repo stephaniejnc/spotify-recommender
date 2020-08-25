@@ -1,4 +1,4 @@
-require(dotenv).config();
+require('dotenv').config();
 // express router
 const router = require('express').Router();
 // spotify web api node dependency
