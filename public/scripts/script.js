@@ -62,7 +62,7 @@ function checkCookie() {
         console.log(username)
         setCookie("username", user);
         loadPlaylists();
-     } else if (username == null || access_token == "undefined") {
+     } else if (window.location.href.indexOf("userhome") > -1 && (username == null || access_token == "undefined")) {
        const app = document.getElementsByClassName('content')[0]
        const h1 = document.createElement('h1')
        h1.textContent = 'User home'

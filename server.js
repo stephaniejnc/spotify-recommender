@@ -23,8 +23,11 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 const { ESRCH } = require('constants')
 
-var client_id = ''; // Your client id
-var client_secret = ''; // Your secret
+const dotenv = require('dotenv');
+dotenv.config();
+
+var client_id = process.env.CLIENT_ID; // Your client id
+var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 
 var token = "1"
