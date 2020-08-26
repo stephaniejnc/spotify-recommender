@@ -87,7 +87,7 @@
         var audio_features = await getAudioFeatures(item.track.id)
       
         // send track info to server for Datastore
-        postData('/playlistid', {
+        postData('/track', {
           artists: artists,
           audio_features: audio_features,
           name: item.track.name,

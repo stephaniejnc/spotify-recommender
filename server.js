@@ -198,11 +198,16 @@ app.get('/playlists', function(req, res) {
 
 })
 
-// set up endpoint for playlist_id POST
-app.post('/playlistid', (req, res, next) => {
-  console.log('I got a playlist!')
+// set up endpoint for POST
+app.post('/track', (req, res, next) => {
+  console.log('I got a track!')
   console.log(req.body)
-  playlst = req.body
+  track = req.body
+
+  tracks.addTrack(track.artists, track.audio_features, track.name, track.track_id, track.playlist_id, function(err) {
+    if (err) return next(err);
+    console.log('You added a track entity to Datastore!');
+  });
 
   // best practices to end
   res.json({
