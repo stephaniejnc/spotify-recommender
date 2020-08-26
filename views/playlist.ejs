@@ -39,7 +39,9 @@
     console.log(playlist_id)
     var access_token = getParameterByName('access');
     console.log(access_token)
+
     clearQuery()
+    loadTracks()
 
     const app = document.getElementById('root')
         const container = document.createElement('div')
@@ -50,7 +52,20 @@
 
         app.append(container)
         app.append(grid)
-        
+    
+    // get JSON object of track's audio features to pass into Datastore track entity
+    async function getAudioFeatures(track_id) {
+        const response = await fetch(`https://api.spotify.com/v1/audio-features/${track_id}`, {
+          headers: {
+            'Authorization': ' Bearer ' + access_token,
+          }
+        })
+        const json = await response.json()
+        console.log(json)
+        return json
+    }
+
+  function loadTracks() {
     fetch(`https://api.spotify.com/v1/playlists/${playlist_id}`, {
         headers: {
             'Authorization': ' Bearer ' + access_token,
@@ -63,14 +78,21 @@
     return response.json()
     })
     .then(playlist => {
-      playlist.tracks.items.forEach(item => {
-        
-        postData('/trackid', {track_id: item.track.id})
+      playlist.tracks.items.forEach(async (item) => {
+        var audio_features = await getAudioFeatures(item.track.id)
+        // console.log(audio_features)
+        // send track info to server for Datastore
+        postData('/playlistid', {
+          artists: item.track.artists,
+          audio_features: audio_features,
+          name: item.track.name,
+          track_id: item.track.id,
+          playlist_id: playlist_id,
+        })
           .then(res => {
             console.log(res)
-          })
+        })
 
-        console.log(item)
         // create div with card grid-item and wrapper
         const gridItem = document.createElement('div')
         gridItem.setAttribute('class', 'grid-item')
@@ -129,7 +151,7 @@
     .catch(err => {
         console.log(err)
     })
-
+  }
 
   function millisToMinutesAndSeconds(millis) {
   var minutes = Math.floor(millis / 60000);

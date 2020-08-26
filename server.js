@@ -16,6 +16,7 @@ app.use('/', indexRouter)
 
 // Authorization Code oAuth2 flow to authenticate against Spotify Accounts.
 
+var tracks = require('./tracks')();
 var request = require('request'); // "Request" library
 request = require ('request-promise')
 var cors = require('cors');
@@ -32,6 +33,7 @@ var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 
 var token = "1"
 var user = "2"
+var playlist = "playlist"
 
 function assign_global(access_token, user_id) {
   token = access_token
@@ -197,13 +199,14 @@ app.get('/playlists', function(req, res) {
 })
 
 // set up endpoint for playlist_id POST
-app.post('/trackid', (req, res) => {
-  console.log('I got a track_id!')
+app.post('/playlistid', (req, res, next) => {
+  console.log('I got a playlist!')
   console.log(req.body)
-  
+  playlst = req.body
+
   // best practices to end
   res.json({
-      status: 'success'
+      status: 'Success: tracks of selected playlist added to Datastore'
   })
 })
 

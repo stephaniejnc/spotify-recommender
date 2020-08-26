@@ -1,7 +1,7 @@
 const {Datastore} = require('@google-cloud/datastore');
 
 module.exports = function() {
-    const projectId = 'jchiu-sps-summer20';
+    const projectId = 'spotify-recommender-284805';
     var datastore = new Datastore({
         projectId: projectId,
     });
