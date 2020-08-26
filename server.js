@@ -208,6 +208,7 @@ app.get('/playlists', function (req, res) {
 app.get('/recommendations', async function (req, res) {
   // list of tracks in playlist
   // input: tracklist 
+  token = 'BQCnLfk21Errke2z4kEumHST5n68jaXapP8dMaAS2dfgDanSaF2EST0BGEzI2LhRN-D5DtdYAJc6BW1qbUz6vaHkEg19JpDN5WyxENpdJa1ymH5el0T2GzT4eeOc235Ng8RBZfEsQkmvSCaN2GLDK3SEphVdKzTn8V7s4YKDnzn-_8qrEoKRZyyxdKoDSU4o'
   const initPlaylist = ['3HqSLMAZ3g3d5poNaI7GOU', '4CoxD8tetisleUQDA7vn1B', '44WLOqH7QayQOQdeUHeKUK', '4BKOjYosPhw334moS3wlbO', '4AlihYDqxXshKhvh5tnMfP']; // get from Datastore
   const initLen = initPlaylist.length;
   var currPlaylist = []; // list of [chunkLen] songs
@@ -227,45 +228,62 @@ app.get('/recommendations', async function (req, res) {
   for (var i = 0; i < initLen; i += chunkLen) {
     chunksPlaylist[chunksPlaylist.length] = initPlaylist.slice(i, i + chunkLen);
   }
-  console.log(initPlaylist);
-  console.log(initLen);
-  console.log(chunksPlaylist);
+  // console.log("initial playlist: " + initPlaylist);
+  // console.log("initial len: " + initLen);
+  // console.log("chunky: " + chunksPlaylist);
 
   for (var j = 0; j < chunksPlaylist.length; j++) {
 
     currPlaylist = chunksPlaylist[j];
 
+    ///////////////////////////////////////////////
     getRecs(currPlaylist)
       .then(docs => {
         docs = JSON.parse(docs);
         for (track in docs["tracks"]) {
           t = docs["tracks"][track];
-          accPlaylist.push(t['id']);
+          accPlaylist.push(t['id']); //['id']
           // accPlaylist.push([t['id'], t['name']]); // adds track ids
         }
-        console.log(accPlaylist);
+        // console.log("acc playlist: ");
+        // console.log(accPlaylist.entries());
         return accPlaylist;
       })
       .catch(err => {
         res.status(400).send(err);
       })
       .then(() => {
-        console.log("ACC: " + accPlaylist);
+        // console.log("ACC: " + JSON.stringify(accPlaylist));
+
         countPlaylist = countRepeats(accPlaylist);
+
         // truncate countPlaylist to initLen
         countPlaylist = Object.keys(countPlaylist).slice(0, initLen);
-        console.log("Count Playlist: " + countPlaylist);
+
+        getTracks(countPlaylist)
+          .then(docs => {
+            console.log("docs : " + docs);
+            docs = JSON.parse(docs);
+            res.status(200).json({
+              count: countPlaylist.length,
+              recommendations: docs
+            });
+          })
+          .catch(err => {
+            res.status(400).send(err);
+          });
+
+        // console.log("Count Playlist: " + countPlaylist);
+        // console.log("Final Playlist: " + finalPlaylist)
+
         // return countPlaylist (for now; then store in DS playlist)
-        res.status(200).json({
-          count: countPlaylist.length,
-          recommendations: countPlaylist
-        });
       })
       .catch(err => {
         res.status(400).send(err);
       });
   }
 
+  // functions
   // get recommendations from Spotify 
   async function getRecs(tracks = [], artists = []) {
     var seed_tracks = "";
@@ -316,7 +334,36 @@ app.get('/recommendations', async function (req, res) {
 
     // automatically ordered from greatest to least
     return counts;
-  }
+  };
+
+  // getting several tracks
+  async function getTracks(lst) {
+    var ids = "";
+    for (var i = 0; i < lst.length - 1; i++) {
+      ids += lst[i] + "%2C";
+    }
+    ids += lst[lst.length - 1];
+
+    var playlistOptions = {
+      url: `https://api.spotify.com/v1/tracks?ids=${ids}`,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    }
+
+    console.log('url: ' + `https://api.spotify.com/v1/tracks?ids=${ids}`);
+
+    var tracks = [];
+
+    await request.get(playlistOptions, function (error, response, body) {
+      console.log("body : " + body);
+      tracks = body;
+    })
+    console.log("tracks: " + tracks);
+    return tracks;
+  };
 
 });
 
