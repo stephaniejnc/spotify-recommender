@@ -73,7 +73,7 @@ function checkCookie() {
        login.setAttribute('id', 'login')
        const link = document.createTextNode('Login')
        login.appendChild(link)
-       login.href = '/loginPage'
+       login.href = '/login'
        app.appendChild(h1)
        app.appendChild(br)
        app.appendChild(br.cloneNode())
