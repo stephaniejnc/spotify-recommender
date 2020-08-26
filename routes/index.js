@@ -27,15 +27,4 @@ router.get('/loginPage', (req, res) => {
     res.render('loginPage', {layout: 'layouts/no-layout'})
 })
 
-// set up endpoint for playlist_id POST
-router.post('/api', (req, res) => {
-    console.log(req.body)
-    console.log('I got a request!')
-    
-    // best practices to end
-    res.json({
-        status: 'success'
-    })
-})
-
 module.exports = router
