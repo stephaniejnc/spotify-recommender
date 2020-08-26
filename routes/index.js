@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+router.use(express.json({limit: '1mb'})) // can limit JSON body size here
 
 router.get('/', (req, res) => {
     console.log('Get request for home received')
@@ -24,6 +25,17 @@ router.get('/insights', (req, res) => {
 router.get('/loginPage', (req, res) => {
     console.log('Get request for login received')
     res.render('loginPage', {layout: 'layouts/no-layout'})
+})
+
+// set up endpoint for playlist_id POST
+router.post('/api', (req, res) => {
+    console.log(req.body)
+    console.log('I got a request!')
+    
+    // best practices to end
+    res.json({
+        status: 'success'
+    })
 })
 
 module.exports = router

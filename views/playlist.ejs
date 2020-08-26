@@ -64,6 +64,12 @@
     })
     .then(playlist => {
       playlist.tracks.items.forEach(item => {
+        
+        postData('/trackid', {track_id: item.track.id})
+          .then(res => {
+            console.log(res)
+          })
+
         console.log(item)
         // create div with card grid-item and wrapper
         const gridItem = document.createElement('div')
@@ -130,5 +136,18 @@
   var seconds = ((millis % 60000) / 1000).toFixed(0);
   return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
   }
+
+  // fetch post request
+  async function postData(url = '', data =  {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    }) 
+    return response.json()
+  }
+
 
 </script>

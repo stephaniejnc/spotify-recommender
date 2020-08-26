@@ -196,6 +196,16 @@ app.get('/playlists', function(req, res) {
 
 })
 
+// set up endpoint for playlist_id POST
+app.post('/trackid', (req, res) => {
+  console.log('I got a track_id!')
+  console.log(req.body)
+  
+  // best practices to end
+  res.json({
+      status: 'success'
+  })
+})
 
 console.log('Listening on port 8888')
 app.listen(process.env.PORT || 8888)
