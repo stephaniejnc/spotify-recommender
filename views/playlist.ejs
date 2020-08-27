@@ -137,20 +137,12 @@
         // create span and set text to playlist description
         const description = document.createElement('span')
         description.textContent = millisToMinutesAndSeconds(item.track.duration_ms)
-
-        // // create span for more info/view playlist
-        // const viewPlaylist = document.createElement('a')
-        // viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`
-        // viewPlaylist.setAttribute('id', 'playlist-id')
-        // viewPlaylist.setAttribute('class', 'more-info')
-        // viewPlaylist.textContent = "select playlist"
-
-      // append
-      gridContent.appendChild(title)
-      gridContent.appendChild(tracks)
-      gridContent.appendChild(description)
-      // gridContent.appendChild(viewPlaylist)
-      grid.append(gridItem)
+        
+        // append
+        gridContent.appendChild(title)
+        gridContent.appendChild(tracks)
+        gridContent.appendChild(description)
+        grid.append(gridItem)
       });
     })
     .catch(err => {
@@ -159,9 +151,9 @@
   }
 
   function millisToMinutesAndSeconds(millis) {
-  var minutes = Math.floor(millis / 60000);
-  var seconds = ((millis % 60000) / 1000).toFixed(0);
-  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
   }
 
   // fetch post request

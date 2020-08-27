@@ -33,7 +33,6 @@ var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 
 var token = "1"
 var user = "2"
-var playlist = "playlist"
 
 function assign_global(access_token, user_id) {
   token = access_token
@@ -128,16 +127,12 @@ app.get('/callback', function(req, res) {
 
         request.get(options, function(error, response, body) {
           console.log(body);
-          // user = body.id;
-          // console.log(user);
-          // user is defined here and is correct
           assign_global(access_token, body.id)
           res.redirect('userhome/#' +
           querystring.stringify({
             access_token: access_token,
             refresh_token: refresh_token,
             user: body.id
-            // these three all have values!
           }));
         })
       } else {
@@ -181,7 +176,6 @@ app.get('/playlists', function(req, res) {
 
   function getPlaylists() {
 
-    // user and token undefined here:(
     var playlistOptions = {
       url: `https://api.spotify.com/v1/users/${user}/playlists`,
       headers: {

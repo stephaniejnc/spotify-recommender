@@ -1,7 +1,9 @@
 const {Datastore} = require('@google-cloud/datastore');
+const dotenv = require('dotenv');
+dotenv.config();
 
 module.exports = function() {
-    const projectId = 'spotify-recommender-284805';
+    const projectId = process.env.SPOTIFY_PROJECT;
     var datastore = new Datastore({
         projectId: projectId,
     });
