@@ -3,11 +3,7 @@ const express = require('express')
 const app = express()
 const expressLayouts = require('express-ejs-layouts')
 
-// spotify web api node dependency
-const SpotifyWebApi = require('spotify-web-api-node');
-
 const indexRouter = require('./routes/index');
-const playlistRouter = require('./routes/playlist');
 require('dotenv').config();
 
 app.set('view engine', 'ejs')
@@ -18,7 +14,6 @@ app.use(express.static('public'))
 app.use(express.static(__dirname + '/public'))
 
 app.use('/', indexRouter)
-app.use('/playlist/', playlistRouter);
 
 // Authorization Code oAuth2 flow to authenticate against Spotify Accounts.
 
@@ -33,12 +28,6 @@ const { get } = require('request-promise');
 var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
-
-var spotifyApi = new SpotifyWebApi({
-  clientId: process.env.CLIENT_ID,
-  clientSecret: process.env.CLIENT_SECRET,
-  redirectUri: process.env.CALLBACK_URL,
-});
 
 var token = "1"
 var user = "2"
@@ -208,17 +197,14 @@ app.get('/playlists', function (req, res) {
 app.get('/recommendations', async function (req, res) {
   // list of tracks in playlist
   // input: tracklist 
-  token = 'BQCnLfk21Errke2z4kEumHST5n68jaXapP8dMaAS2dfgDanSaF2EST0BGEzI2LhRN-D5DtdYAJc6BW1qbUz6vaHkEg19JpDN5WyxENpdJa1ymH5el0T2GzT4eeOc235Ng8RBZfEsQkmvSCaN2GLDK3SEphVdKzTn8V7s4YKDnzn-_8qrEoKRZyyxdKoDSU4o'
-  const initPlaylist = ['3HqSLMAZ3g3d5poNaI7GOU', '4CoxD8tetisleUQDA7vn1B', '44WLOqH7QayQOQdeUHeKUK', '4BKOjYosPhw334moS3wlbO', '4AlihYDqxXshKhvh5tnMfP']; // get from Datastore
+  var initPlaylist = ['3HqSLMAZ3g3d5poNaI7GOU', '4CoxD8tetisleUQDA7vn1B', '44WLOqH7QayQOQdeUHeKUK', '4BKOjYosPhw334moS3wlbO', '4AlihYDqxXshKhvh5tnMfP']; // get from Datastore
+  initPlaylist = shuffle(initPlaylist);
   const initLen = initPlaylist.length;
   var currPlaylist = []; // list of [chunkLen] songs
-  var accPlaylist = [];//['4BKOjYosPhw334moS3wlbO', '4BKOjYosPhw334moS3wlbO', '4AlihYDqxXshKhvh5tnMfP', '4CoxD8tetisleUQDA7vn1B']; // cumulative list of recommendations
+  var accPlaylist = []; // cumulative list of recommendations
   var chunksPlaylist = []; // partitioned initPlaylist
   var countPlaylist = []; // counter version of accPlaylist (more compact version)
   var chunkLen = 5; // default size of chunks
-
-  // need: track id, artist id 
-  // TODO: implement the same but for artists
 
   if (initLen <= 5) {
     chunkLen = (initLen / 2) + 1;
@@ -228,33 +214,24 @@ app.get('/recommendations', async function (req, res) {
   for (var i = 0; i < initLen; i += chunkLen) {
     chunksPlaylist[chunksPlaylist.length] = initPlaylist.slice(i, i + chunkLen);
   }
-  // console.log("initial playlist: " + initPlaylist);
-  // console.log("initial len: " + initLen);
-  // console.log("chunky: " + chunksPlaylist);
 
   for (var j = 0; j < chunksPlaylist.length; j++) {
 
     currPlaylist = chunksPlaylist[j];
 
-    ///////////////////////////////////////////////
     getRecs(currPlaylist)
       .then(docs => {
         docs = JSON.parse(docs);
         for (track in docs["tracks"]) {
           t = docs["tracks"][track];
-          accPlaylist.push(t['id']); //['id']
-          // accPlaylist.push([t['id'], t['name']]); // adds track ids
+          accPlaylist.push(t['id']);
         }
-        // console.log("acc playlist: ");
-        // console.log(accPlaylist.entries());
         return accPlaylist;
       })
       .catch(err => {
         res.status(400).send(err);
       })
       .then(() => {
-        // console.log("ACC: " + JSON.stringify(accPlaylist));
-
         countPlaylist = countRepeats(accPlaylist);
 
         // truncate countPlaylist to initLen
@@ -272,11 +249,6 @@ app.get('/recommendations', async function (req, res) {
           .catch(err => {
             res.status(400).send(err);
           });
-
-        // console.log("Count Playlist: " + countPlaylist);
-        // console.log("Final Playlist: " + finalPlaylist)
-
-        // return countPlaylist (for now; then store in DS playlist)
       })
       .catch(err => {
         res.status(400).send(err);
@@ -284,6 +256,21 @@ app.get('/recommendations', async function (req, res) {
   }
 
   // functions
+
+  // shuffle array
+  function shuffle(lst) {
+    length = lst.length - 1;
+    while (length > 0) {
+      index = Math.floor(Math.random() * length);
+      // swap
+      var tmp = lst[length];
+      lst[length] = lst[index]
+      lst[index] = tmp;
+      length--;
+    }
+    return lst;
+  }
+
   // get recommendations from Spotify 
   async function getRecs(tracks = [], artists = []) {
     var seed_tracks = "";
