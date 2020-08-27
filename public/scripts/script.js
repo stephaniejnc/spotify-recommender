@@ -1,3 +1,34 @@
+// nav bar burger
+function navSlideMobile() {
+  console.log("hello");
+  const burger = document.querySelector(".burger");
+  const nav = document.querySelector(".nav-links");
+  const navLinks = document.querySelectorAll(".nav-links li")
+
+  // toggle navigation
+  if (burger) {
+    burger.addEventListener("click", () => {
+      nav.classList.toggle("nav-active");
+
+      // animate links
+      navLinks.forEach((link, index) => {
+          if (link.style.animation) {
+              link.style.animation = '';
+          } else {
+              link.style.animation = `navLinkFade 0.5s ease forwards ${index/7 + 0.5}s`;
+          }
+          console.log(index / 7);
+      });
+
+      // burger animation
+      burger.classList.toggle("toggle");
+    });
+  }   
+
+}
+
+navSlideMobile();
+
 const hash = window.location.hash
 .substring(1)
 .split('&')
@@ -16,14 +47,15 @@ window.location.hash = '';
 // Set token and double check
 let access_token = hash.access_token;
 let refresh_token = hash.refresh_token;
+let playlist = hash.playlist;
 let user = hash.user;
 
 // Set cookie for 1 hour
 
 function setCookie(cname, cvalue) {
-  var d = new Date();
-  d.setTime(d.getTime() + 3600 * 1000);
-  var expires = "expires="+ d.toUTCString();
+  var now = new Date()
+  now.setTime(now.getTime() + 3600 * 1000)
+  var expires = "expires=" + now.toUTCString()
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
@@ -49,16 +81,37 @@ function getCookie(cname) {
 
 function checkCookie() {
   var username=getCookie("username");
-  console.log(username)
-  if (username != "") {
+  console.log(`username: ${username}`)
+  console.log(access_token)
+  if (username != "" && access_token != null) {
     user = username;
+    console.log('here')
     loadPlaylists();
   } else {
       username = user;
-      if (username != "" && username != null) {
+      if (username != "" && username != null && access_token != null) {
         console.log(username)
         setCookie("username", user);
         loadPlaylists();
+     } else if (window.location.href.indexOf("userhome") > -1 && (username == null || access_token == "undefined")) {
+       const app = document.getElementsByClassName('content')[0]
+       const h1 = document.createElement('h1')
+       h1.textContent = 'User home'
+       const br = document.createElement('br')
+       const h2 = document.createElement('h2')
+       h2.textContent = 'Log in to see your playlists!'
+       const login = document.createElement('a')
+       login.setAttribute('id', 'login')
+       const link = document.createTextNode('Login')
+       login.appendChild(link)
+       login.href = '/login'
+       app.appendChild(h1)
+       app.appendChild(br)
+       app.appendChild(br.cloneNode())
+       app.appendChild(h2)
+       app.appendChild(br.cloneNode())
+       app.appendChild(br.cloneNode())
+       app.appendChild(login)
      }
   }
 }
@@ -90,7 +143,7 @@ function loadPlaylists() {
   })
   .then(data => {
     console.log('Fetching playlists....')
-    console.log(data)
+    // console.log(data)
     const h1 = document.createElement('h1')
     const br = document.createElement('br')
     h1.textContent = `${user}'s playlists :)`
@@ -144,7 +197,9 @@ function loadPlaylists() {
         }
 
         // create span for more info/view playlist
-        const viewPlaylist = document.createElement('span')
+        const viewPlaylist = document.createElement('a')
+        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`
+        viewPlaylist.setAttribute('id', 'playlist-id')
         viewPlaylist.setAttribute('class', 'more-info')
         viewPlaylist.textContent = "select playlist"
 
@@ -163,3 +218,4 @@ function loadPlaylists() {
   })
 
 }
+

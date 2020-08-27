@@ -17,6 +17,7 @@ app.use('/', indexRouter)
 
 // Authorization Code oAuth2 flow to authenticate against Spotify Accounts.
 
+var tracks = require('./tracks')();
 var request = require('request'); // "Request" library
 request = require('request-promise')
 var cors = require('cors');
@@ -24,6 +25,9 @@ var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 const { ESRCH } = require('constants');
 const { get } = require('request-promise');
+
+const dotenv = require('dotenv');
+dotenv.config();
 
 var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
@@ -64,7 +68,7 @@ app.get('/login', function (req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email';
+  var scope = 'user-read-private user-read-email playlist-read-private';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -121,18 +125,13 @@ app.get('/callback', function (req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function (error, response, body) {
           console.log(body);
-          // user = body.id;
-          // console.log(user);
-          // user is defined here and is correct
           assign_global(access_token, body.id)
-          // we can also pass the token to the browser to make requests from there
-          res.redirect('/#' +
-            querystring.stringify({
-              access_token: access_token,
-              refresh_token: refresh_token,
-              user: body.id
-              // these three all have values!
-            }));
+          res.redirect('userhome/#' +
+          querystring.stringify({
+            access_token: access_token,
+            refresh_token: refresh_token,
+            user: body.id
+          }));
         })
       } else {
         res.redirect('/#' +
@@ -168,13 +167,13 @@ app.get('/refresh_token', function (req, res) {
   });
 });
 
+// GET logged in user's playlists
 app.get('/playlists', function (req, res) {
-
+  
   getPlaylists();
 
   function getPlaylists() {
 
-    // user and token undefined here:(
     var playlistOptions = {
       url: `https://api.spotify.com/v1/users/${user}/playlists`,
       headers: {
@@ -192,6 +191,22 @@ app.get('/playlists', function (req, res) {
 
 })
 
+// set up endpoint for POST
+app.post('/track', (req, res, next) => {
+  console.log('I got a track!')
+  console.log(req.body)
+  track = req.body
+
+  tracks.addTrack(track.artists, track.audio_features, track.name, track.track_id, track.playlist_id, function(err) {
+    if (err) return next(err);
+    console.log('You added a track entity to Datastore!');
+  });
+
+  // best practices to end
+  res.json({
+      status: 'Success: tracks of selected playlist added to Datastore'
+  })
+})
 
 // user and token are global vars! 
 app.get('/recommendations', async function (req, res) {

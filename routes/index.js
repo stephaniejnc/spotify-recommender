@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+router.use(express.json({limit: '1mb'})) // can limit JSON body size here
 
 router.get('/', (req, res) => {
     console.log('Get request for home received')
@@ -9,6 +10,11 @@ router.get('/', (req, res) => {
 router.get('/userhome', (req, res) => {
     console.log('Get request for userhome received')
     res.render('userhome', {layout: 'layouts/layout'})
+})
+
+router.get('/playlist', (req, res) => {
+    console.log('Get request for userhome received')
+    res.render('playlist', {layout: 'layouts/layout'})
 })
 
 router.get('/insights', (req, res) => {
