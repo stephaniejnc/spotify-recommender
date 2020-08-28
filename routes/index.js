@@ -13,7 +13,7 @@ router.get('/userhome', (req, res) => {
 })
 
 router.get('/playlist', (req, res) => {
-    console.log('Get request for userhome received')
+    console.log('Get request for playlist received')
     res.render('playlist', {layout: 'layouts/layout'})
 })
 
@@ -25,6 +25,11 @@ router.get('/insights', (req, res) => {
 router.get('/loginPage', (req, res) => {
     console.log('Get request for login received')
     res.render('loginPage', {layout: 'layouts/no-layout'})
+})
+
+router.get('/searchuser', (req, res) => {
+    console.log('Get request for search user received')
+    res.render('searchuser', {layout: 'layouts/layout'})
 })
 
 module.exports = router
