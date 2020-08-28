@@ -208,12 +208,9 @@ app.post('/track', (req, res, next) => {
   })
 })
 
-// user and token are global vars! 
+// get a list of recommendations for a playlist
 app.get('/recommendations/:playlist_id', async function (req, res) {
-  // list of tracks in playlist
-  // input: tracklist
   var initPlaylist = [];
-  var finalPlaylist = [];
   tracks.getTracksByPlaylist(req.params.playlist_id, async (err, songs) => {
     if (err) { console.log(err) }
     for (var i = 0; i < songs.length; i++) {
