@@ -209,14 +209,20 @@ app.post('/track', (req, res, next) => {
 })
 
 // get a list of recommendations for a playlist
-app.get('/recommendations/:playlist_id', async function (req, res) {
+app.get('/recommendations/:playlist_id/:playlist_id_2', async function (req, res) {
   var initPlaylist = [];
+  tracks.getTracksByPlaylist(req.params.playlist_id_2, async (err, songs) => {
+    if (err) { console.log(err) }
+    for (var i = 0; i < songs.length; i++) {
+      initPlaylist.push(songs[i].track_id)
+    };
+  });
+
   tracks.getTracksByPlaylist(req.params.playlist_id, async (err, songs) => {
     if (err) { console.log(err) }
     for (var i = 0; i < songs.length; i++) {
       initPlaylist.push(songs[i].track_id)
     };
-
     initPlaylist = shuffle(initPlaylist);
 
     const initLen = initPlaylist.length;
@@ -337,6 +343,7 @@ app.get('/recommendations/:playlist_id', async function (req, res) {
   };
 
   // getting several tracks
+  // TODO: expand capacity to more than 50 songs
   async function getTracks(lst = []) {
     if (lst.length < 1) {
       return [];
