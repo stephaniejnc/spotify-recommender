@@ -143,7 +143,7 @@ function loadPlaylists() {
   })
   .then(data => {
     console.log('Fetching playlists....')
-    // console.log(data)
+    console.log(data)
     const h1 = document.createElement('h1')
     const br = document.createElement('br')
     h1.textContent = `${user}'s playlists :)`

@@ -13,11 +13,8 @@
   "dependencies": {
     "@google-cloud/datastore": "^6.1.0",
     "@google-cloud/storage": "^5.1.2",
-<<<<<<< HEAD
     "body-parser": "^1.19.0",
-=======
     "axios": "^0.19.2",
->>>>>>> 7c5502d87d399f8c0b3ec350123268d7dcd8d357
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

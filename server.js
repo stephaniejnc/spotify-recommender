@@ -134,7 +134,7 @@ app.get('/callback', function (req, res) {
           querystring.stringify({
             access_token: access_token,
             refresh_token: refresh_token,
-            user: body.id
+            user: body.display_name
           }));
         })
       } else {
