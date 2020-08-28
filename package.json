@@ -13,7 +13,11 @@
   "dependencies": {
     "@google-cloud/datastore": "^6.1.0",
     "@google-cloud/storage": "^5.1.2",
+<<<<<<< HEAD
     "body-parser": "^1.19.0",
+=======
+    "axios": "^0.19.2",
+>>>>>>> 7c5502d87d399f8c0b3ec350123268d7dcd8d357
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
@@ -22,7 +26,8 @@
     "express-ejs-layouts": "^2.5.0",
     "jsonwebtoken": "^8.5.1",
     "request": "^2.88.2",
-    "request-promise": "^4.2.6"
+    "request-promise": "^4.2.6",
+    "spotify-web-api-node": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
