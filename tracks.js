@@ -1,8 +1,8 @@
-const {Datastore} = require('@google-cloud/datastore');
+const { Datastore } = require('@google-cloud/datastore');
 const dotenv = require('dotenv');
 dotenv.config();
 
-module.exports = function() {
+module.exports = function () {
     const projectId = process.env.SPOTIFY_PROJECT;
     var datastore = new Datastore({
         projectId: projectId,
@@ -39,7 +39,7 @@ module.exports = function() {
         const returnedTracks = await datastore.runQuery(query);
         var audio_features = returnedTracks[0][0].audio_features;
         console.log('Success!')
-        return {audio_features};
+        return { audio_features };
     }
 
     return {
