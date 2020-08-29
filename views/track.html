@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Spotify Recommender</title>
+    <link href="../public/css/style.css" rel="stylesheet" type="text/css">
+    <link href="../public/css/track.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <nav>
+        <div class="logo">
+          <h3>spotify recommender</h3>
+        </div>
+          <ul class="nav-links">
+            <li><a href="/">about</a></li>
+            <li><a href="/userhome" class="active">user home</a></li>
+            <li><a href="/insights">insights</a></li>
+          </ul>
+          <div class="burger">
+            <div class="line1"></div>
+            <div class="line2"></div>
+            <div class="line3"></div>
+        </div>
+      </nav> 
+      
+      <div id="root"></div>
+
+      <div id="tracks">
+          <div id="playlist-info">
+            <img src="img1.jpeg" alt="Playlist cover photo." id="playlist-cover">
+            <p id="playlist-name">My First Playlist</p>
+            <div id="buttons">
+                <button class="button" id="confirm">Confirm</button>
+                <button class="button" id="back">Back</button>
+            </div>
+          </div>
+          <div id="track-info">
+            <div class=track>
+                <div>
+                    <img src="../public/images/note.png" alt="A music note." class="icon">
+                    <a href="#" class="track-name">Don't cry Don't cry</a>
+                    <span class="duration">5:20</span>
+                </div>
+                <p class="artist">Waa Wei</p>
+            </div>
+            <hr>
+            <div class=track>
+                <div>
+                    <img src="../public/images/note.png" alt="A music note." class="icon">
+                    <a href="#" class="track-name">Ophelia</a>
+                    <span class="duration">3:36</span>
+                </div>
+                <p class="artist">Waa Wei</p>
+            </div>
+            <hr>
+            <div class=track>
+                <p><img src="../public/images/note.png" alt="A music note." class="icon"><a href="#" class="track-name">IF</a> <span class="duration">5:20</span></p>
+                <p class="artist">Waa Wei</p>
+            </div>
+            <hr>
+            <div class=track>
+                <p><img src="../public/images/note.png" alt="A music note." class="icon"><a href="#" class="track-name">Don't cry Don't cry</a> <span class="duration">5:20</span></p>
+                <p class="artist">Waa Wei</p>
+            </div>
+          </div>
+      </div>
+
+  </body>
+</html>
