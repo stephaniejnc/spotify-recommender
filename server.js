@@ -211,75 +211,89 @@ app.post('/track', (req, res, next) => {
 // get a list of recommendations for a playlist
 app.get('/recommendations/:playlist_id/:playlist_id_2', async function (req, res) {
   var initPlaylist = [];
-  tracks.getTracksByPlaylist(req.params.playlist_id_2, async (err, songs) => {
+  await getTracksByPlaylistId(req.params.playlist_id_2, async (err, songs) => {
+    console.log(req.params.playlist_id_2);
     if (err) { console.log(err) }
     for (var i = 0; i < songs.length; i++) {
-      initPlaylist.push(songs[i].track_id)
+      initPlaylist.push(songs[i].track_id);
     };
-  });
+    console.log("FIRST: " + initPlaylist);
 
-  tracks.getTracksByPlaylist(req.params.playlist_id, async (err, songs) => {
-    if (err) { console.log(err) }
-    for (var i = 0; i < songs.length; i++) {
-      initPlaylist.push(songs[i].track_id)
-    };
-    initPlaylist = shuffle(initPlaylist);
+    getTracksByPlaylistId(req.params.playlist_id, async (err, songs) => {
 
-    const initLen = initPlaylist.length;
-    var currPlaylist = []; // list of [chunkLen] songs
-    var accPlaylist = []; // cumulative list of recommendations
-    var chunksPlaylist = []; // partitioned initPlaylist
-    var countPlaylist = []; // counter version of accPlaylist (more compact version)
-    var chunkLen = 5; // default size of chunks
+      if (err) { console.log(err) }
+      for (var i = 0; i < songs.length; i++) {
+        initPlaylist.push(songs[i].track_id)
+      };
 
-    if (initLen <= 5) {
-      chunkLen = (initLen / 2) + 1;
-    }
+      console.log(initPlaylist.length);
+      console.log(initPlaylist);
 
-    // chunking initPlaylist
-    for (var i = 0; i < initLen; i += chunkLen) {
-      chunksPlaylist[chunksPlaylist.length] = initPlaylist.slice(i, i + chunkLen);
-    }
+      initPlaylist = shuffle(initPlaylist);
 
-    for (var j = 0; j < chunksPlaylist.length; j++) { // for each chunk
+      var initLen = initPlaylist.length;
+      var currPlaylist = []; // list of [chunkLen] songs
+      var accPlaylist = []; // cumulative list of recommendations
+      var chunksPlaylist = []; // partitioned initPlaylist
+      var countPlaylist = []; // counter version of accPlaylist (more compact version)
+      var chunkLen = 5; // default size of chunks
 
-      currPlaylist = chunksPlaylist[j];
+      if (initLen <= 5) {
+        chunkLen = (initLen / 2) + 1;
+      }
 
-      await getRecs(currPlaylist)
+      // chunking initPlaylist
+      for (var i = 0; i < initLen; i += chunkLen) {
+        chunksPlaylist[chunksPlaylist.length] = initPlaylist.slice(i, i + chunkLen);
+      }
+
+      for (var j = 0; j < chunksPlaylist.length; j++) { // for each chunk
+
+        currPlaylist = chunksPlaylist[j];
+
+        await getRecs(currPlaylist)
+          .then(docs => {
+            docs = JSON.parse(docs);
+            for (track in docs["tracks"]) {
+              t = docs["tracks"][track];
+              accPlaylist.push(t['id']);
+            }
+            return accPlaylist;
+          })
+          .catch(err => {
+            res.status(400).send(err);
+          });
+      }
+      countPlaylist = countRepeats(accPlaylist);
+
+      // truncate countPlaylist to initLen
+      if (initLen > 50) {
+        initLen = 50;
+      }
+      countPlaylist = Object.keys(countPlaylist).slice(0, initLen);
+
+      await getTracks(countPlaylist)
         .then(docs => {
+          // console.log("docs : " + docs);
           docs = JSON.parse(docs);
-          for (track in docs["tracks"]) {
-            t = docs["tracks"][track];
-            accPlaylist.push(t['id']);
-          }
-          return accPlaylist;
+          finalPlaylist = docs;
+          res.status(200).json({
+            count: docs.tracks.length,
+            recommendations: docs
+          });
         })
         .catch(err => {
-          res.status(400).send(err);
+          res.status(400).json(err);
         });
-    }
-    countPlaylist = countRepeats(accPlaylist);
 
-    // truncate countPlaylist to initLen
-    countPlaylist = Object.keys(countPlaylist).slice(0, initLen);
-
-    await getTracks(countPlaylist)
-      .then(docs => {
-        // console.log("docs : " + docs);
-        docs = JSON.parse(docs);
-        finalPlaylist = docs;
-        res.status(200).json({
-          count: docs.tracks.length,
-          recommendations: docs
-        });
-      })
-      .catch(err => {
-        res.status(400).json(err);
-      });
-
-  })
+    })
+  });
 
   // functions
+  // get tracks by playlist id
+  async function getTracksByPlaylistId(id, callback) {
+    tracks.getTracksByPlaylist(id, callback);
+  }
 
   // shuffle array
   function shuffle(lst) {
