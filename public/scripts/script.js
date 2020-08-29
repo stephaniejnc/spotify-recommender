@@ -95,6 +95,7 @@ function checkCookie() {
         loadPlaylists();
      } else if (window.location.href.indexOf("userhome") > -1 && (username == null || access_token == "undefined")) {
        const app = document.getElementsByClassName('content')[0]
+       const br1 = document.createElement('br')
        const h1 = document.createElement('h1')
        h1.textContent = 'User home'
        const br = document.createElement('br')
@@ -105,6 +106,11 @@ function checkCookie() {
        const link = document.createTextNode('Login')
        login.appendChild(link)
        login.href = '/login'
+       app.appendChild(br1)
+       app.appendChild(br1.cloneNode())
+       app.appendChild(br1.cloneNode())
+       app.appendChild(br1.cloneNode())
+       app.appendChild(br1.cloneNode())
        app.appendChild(h1)
        app.appendChild(br)
        app.appendChild(br.cloneNode())
@@ -121,12 +127,15 @@ function checkCookie() {
 function loadPlaylists() {
   const app = document.getElementById('root')
 
+  const background = document.createElement('div')
+  background.setAttribute('class', 'background')
   const container = document.createElement('div')
   container.setAttribute('class', 'container')
 
   const grid = document.createElement('div')
   grid.setAttribute('class', 'grid-row')
 
+  app.append(background)
   app.append(container)
   app.append(grid)
 
@@ -218,4 +227,5 @@ function loadPlaylists() {
   })
 
 }
+
 
