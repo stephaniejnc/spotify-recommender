@@ -48,18 +48,23 @@ window.location.hash = '';
 let access_token = hash.access_token;
 let refresh_token = hash.refresh_token;
 let playlist = hash.playlist;
-let user = hash.user;
+// let user = hash.user;
+var user = ""
 
 if (window.location.href.indexOf("insights") > -1) {
   fetchInsights();
 }
 
+if (window.location.href.indexOf("userhome") > -1) {
+  loadPlaylists();
+}
+
 // Set cookie for 1 hour
 
 function setCookie(cname, cvalue) {
-  var now = new Date()
-  now.setTime(now.getTime() + 3600 * 1000)
-  var expires = "expires=" + now.toUTCString()
+  var now = new Date();
+  now.setTime(now.getTime() + 3600 * 1000);
+  var expires = "expires=" + now.toUTCString();
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
@@ -99,28 +104,7 @@ function checkCookie() {
         loadPlaylists();
      } else if (window.location.href.indexOf("userhome") > -1
                && (username == null || access_token == "undefined")) {
-       const app = document.getElementsByClassName('content')[0]
-
-       if (window.location.href.indexOf("userhome") > -1) {
-        const h1 = document.createElement('h1')
-        h1.textContent = "User home"
-        app.appendChild(h1)
-       }
-
-       const br = document.createElement('br')
-       const h2 = document.createElement('h2')
-       h2.textContent = 'Log in to see your playlists and insights!'
-       const login = document.createElement('a')
-       login.setAttribute('id', 'login')
-       const link = document.createTextNode('Login')
-       login.appendChild(link)
-       login.href = '/login'
-       app.appendChild(br)
-       app.appendChild(br.cloneNode())
-       app.appendChild(h2)
-       app.appendChild(br.cloneNode())
-       app.appendChild(br.cloneNode())
-       app.appendChild(login)
+       renderLogin();
      }
   }
 }
@@ -131,114 +115,123 @@ async function isLoggedIn() {
     if (response.status != 200) {
       console.log(`Error fetching login status.`)
     }
-    return response.json()
+    return response.json();
   })
   .then(isLoggedIn => {
-    var loginStatus = isLoggedIn.loggedin
-    console.log(loginStatus)
+    console.log(isLoggedIn);
+    var loginStatus = isLoggedIn.loggedin;
+    user = isLoggedIn.username;
+    // console.log(loginStatus);
     return loginStatus;
   })
 }
 
 // Fetch playlists if needed from URL hash
 
-function loadPlaylists() {
-  const app = document.getElementById('root')
+async function loadPlaylists() {
 
-  const container = document.createElement('div')
-  container.setAttribute('class', 'container')
+  let loginstatus = await isLoggedIn();
 
-  const grid = document.createElement('div')
-  grid.setAttribute('class', 'grid-row')
+  const app = document.getElementById('root');
 
-  app.append(container)
-  app.append(grid)
+  const container = document.createElement('div');
+  container.setAttribute('class', 'container');
+
+  const grid = document.createElement('div');
+  grid.setAttribute('class', 'grid-row');
+
+  app.append(container);
+  app.append(grid);
+
+  if (!loginstatus) {
+    renderLogin("User home");
+    return;
+  }
 
   // fetch my user playlists
   fetch('/playlists')
   .then(response => {
       if (response.status != 200) {
-        console.log(`Error ${response.status}`)
-        const h1 = document.createElement('h1')
-        h1.textContent = `Error ${response.status}: playlists not retrieved :(`
-        app.append(h1)
+        console.log(`Error ${response.status}`);
+        const h1 = document.createElement('h1');
+        h1.textContent = `Error ${response.status}: playlists not retrieved :(`;
+        app.append(h1);
       }
-    return response.json()
+    return response.json();
   })
   .then(data => {
-    console.log('Fetching playlists....')
-    console.log(data)
-    const h1 = document.createElement('h1')
-    const br = document.createElement('br')
-    h1.textContent = `${user}'s playlists :)`
-    container.appendChild(h1)
-    container.append(br)
+    console.log('Fetching playlists....');
+    const h1 = document.createElement('h1');
+    const br = document.createElement('br');
+    h1.textContent = `${user}'s playlists :)`;
+    container.appendChild(h1);
+    container.append(br);
     data.items.forEach(playlist => {
 
         // create div with card grid-item and wrapper
-        const gridItem = document.createElement('div')
-        gridItem.setAttribute('class', 'grid-item')
-        const gridItemWrapper = document.createElement('div')
-        gridItemWrapper.setAttribute('class', 'grid-item-wrapper')
-        gridItem.appendChild(gridItemWrapper)
+        const gridItem = document.createElement('div');
+        gridItem.setAttribute('class', 'grid-item');
+        const gridItemWrapper = document.createElement('div');
+        gridItemWrapper.setAttribute('class', 'grid-item-wrapper');
+        gridItem.appendChild(gridItemWrapper);
 
         // create grid-item container
-        const gridItemContainer = document.createElement('div')
-        gridItemContainer.setAttribute('class', 'grid-item-container')
-        gridItemWrapper.appendChild(gridItemContainer)
+        const gridItemContainer = document.createElement('div');
+        gridItemContainer.setAttribute('class', 'grid-item-container');
+        gridItemWrapper.appendChild(gridItemContainer);
 
         // create grid-item image
-        const gridImage = document.createElement('div')
-        gridImage.setAttribute('class', 'grid-image-top')
-        var playlistImage = playlist.images[0]
+        const gridImage = document.createElement('div');
+        gridImage.setAttribute('class', 'grid-image-top');
+        var playlistImage = playlist.images[0];
         if (playlist.images[0]) {
-        gridImage.style.backgroundImage = `url(${playlistImage.url})`
+          gridImage.style.backgroundImage = `url(${playlistImage.url})`;
         }
-        gridItemContainer.appendChild(gridImage)
+        gridItemContainer.appendChild(gridImage);
         
         // create grid-item content
-        const gridContent = document.createElement('div')
-        gridContent.setAttribute('class', 'grid-item-content')
-        gridItemContainer.appendChild(gridContent)
+        const gridContent = document.createElement('div');
+        gridContent.setAttribute('class', 'grid-item-content');
+        gridItemContainer.appendChild(gridContent);
 
         // create span and set text to playlist title
-        const title = document.createElement('span')
-        title.setAttribute('class', 'item-title')
-        title.textContent = playlist.name
+        const title = document.createElement('span');
+        title.setAttribute('class', 'item-title');
+        title.textContent = playlist.name;
 
         // create span and set text to playlist title
-        const tracks = document.createElement('span')
-        tracks.setAttribute('class', 'item-category')
-        tracks.textContent = `${playlist.tracks.total} tracks`
+        const tracks = document.createElement('span');
+        tracks.setAttribute('class', 'item-category');
+        tracks.textContent = `${playlist.tracks.total} tracks`;
 
         // create span and set text to playlist description
         const description = document.createElement('span')
         if (playlist.description == "") {
-          description.textContent = "no playlist description"
+          description.textContent = "no playlist description";
         } else {
-        playlist.description = playlist.description.substring(0,25)
-        description.textContent = `${playlist.description}...`
+          playlist.description = playlist.description.substring(0,25);
+          description.textContent = `${playlist.description}...`;
         }
 
         // create span for more info/view playlist
-        const viewPlaylist = document.createElement('a')
-        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`
-        viewPlaylist.setAttribute('id', 'playlist-id')
-        viewPlaylist.setAttribute('class', 'more-info')
-        viewPlaylist.textContent = "select playlist"
+        const viewPlaylist = document.createElement('a');
+        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`;
+        viewPlaylist.setAttribute('id', 'playlist-id');
+        viewPlaylist.setAttribute('class', 'more-info');
+        viewPlaylist.textContent = "select playlist";
 
         // append
-        gridContent.appendChild(title)
-        gridContent.appendChild(tracks)
-        gridContent.appendChild(description)
-        gridContent.appendChild(viewPlaylist)
-        grid.append(gridItem)
+        gridContent.appendChild(title);
+        gridContent.appendChild(tracks);
+        gridContent.appendChild(description);
+        gridContent.appendChild(viewPlaylist);
+        grid.append(gridItem);
     })
   }).catch(err => {
-    console.log(err)
-    const h1 = document.createElement('h1')
-    h1.textContent = `Error ${err.status}: playlists not retrieved, ${err.message} :(`
-    app.append(h1)
+    console.log(err);
+    const h1 = document.createElement('h1');
+    h1.textContent = `Error ${err.status}: playlists not retrieved, ${err.message} :(`;
+    app.append(h1);
   })
 
 }
@@ -248,114 +241,119 @@ function loadPlaylists() {
 async function fetchInsights() {
   let loginstatus = await isLoggedIn();
 
-  const app = document.getElementById('root')
+  const app = document.getElementById('root');
 
-  const container = document.createElement('div')
-  container.setAttribute('class', 'container')
+  const container = document.createElement('div');
+  container.setAttribute('class', 'container');
 
-  const grid = document.createElement('div')
-  grid.setAttribute('class', 'grid-row')
+  const grid = document.createElement('div');
+  grid.setAttribute('class', 'grid-row');
 
-  app.append(container)
-  app.append(grid)
+  app.append(container);
+  app.append(grid);
 
   console.log(`login status awaited: ${loginstatus}`)
 
   if (!loginstatus) {
-    const app = document.getElementsByClassName('content')[0]
-    const h1 = document.createElement('h1')
-    h1.textContent = "Insights"
-    app.appendChild(h1)
-    const br = document.createElement('br')
-    const h2 = document.createElement('h2')
-    h2.textContent = 'Log in to see your playlists and insights!'
-    const login = document.createElement('a')
-    login.setAttribute('id', 'login')
-    const link = document.createTextNode('Login')
-    login.appendChild(link)
-    login.href = '/login'
-    app.appendChild(br)
-    app.appendChild(br.cloneNode())
-    app.appendChild(h2)
-    app.appendChild(br.cloneNode())
-    app.appendChild(br.cloneNode())
-    app.appendChild(login)
+    renderLogin("Insights");
     return;
   } else {
     fetch('/userinsights') 
     .then(response => {
       if (response.status != 200) {
-        console.log(response.status)
+        console.log(response.status);
       }
-      return response.json()
+      return response.json();
     })
     .then(data => {
-    const h1 = document.createElement('h1')
-    const br = document.createElement('br')
-    h1.textContent = `Your top artists :)`
-    container.appendChild(h1)
-    container.append(br)
+    const h1 = document.createElement('h1');
+    const br = document.createElement('br');
+    h1.textContent = `${user}'s top artists :)`;
+    container.appendChild(h1);
+    container.append(br);
     data.items.forEach(artist => {
 
       // create div with card grid-item and wrapper
-        const gridItem = document.createElement('div')
-        gridItem.setAttribute('class', 'grid-item')
-        const gridItemWrapper = document.createElement('div')
-        gridItemWrapper.setAttribute('class', 'grid-item-wrapper')
-        gridItem.appendChild(gridItemWrapper)
+        const gridItem = document.createElement('div');
+        gridItem.setAttribute('class', 'grid-item');
+        const gridItemWrapper = document.createElement('div');
+        gridItemWrapper.setAttribute('class', 'grid-item-wrapper');
+        gridItem.appendChild(gridItemWrapper);
 
         // create grid-item container
-        const gridItemContainer = document.createElement('div')
-        gridItemContainer.setAttribute('class', 'grid-item-container')
-        gridItemWrapper.appendChild(gridItemContainer)
+        const gridItemContainer = document.createElement('div');
+        gridItemContainer.setAttribute('class', 'grid-item-container');
+        gridItemWrapper.appendChild(gridItemContainer);
 
         // create grid-item image
-        const gridImage = document.createElement('div')
-        gridImage.setAttribute('class', 'grid-image-top')
-        var artistImage = artist.images[0]
+        const gridImage = document.createElement('div');
+        gridImage.setAttribute('class', 'grid-image-top');
+        var artistImage = artist.images[0];
         if (artist.images[0]) {
-        gridImage.style.backgroundImage = `url(${artistImage.url})`
+          gridImage.style.backgroundImage = `url(${artistImage.url})`;
         }
-        gridItemContainer.appendChild(gridImage)
+        gridItemContainer.appendChild(gridImage);
         
         // create grid-item content
-        const gridContent = document.createElement('div')
-        gridContent.setAttribute('class', 'grid-item-content')
-        gridItemContainer.appendChild(gridContent)
+        const gridContent = document.createElement('div');
+        gridContent.setAttribute('class', 'grid-item-content');
+        gridItemContainer.appendChild(gridContent);
 
         // create span and set text to artist name
-        const title = document.createElement('span')
-        title.setAttribute('class', 'item-title')
-        title.textContent = artist.name
+        const title = document.createElement('span');
+        title.setAttribute('class', 'item-title');
+        title.textContent = artist.name;
 
         // create span and set text to artist followers
-        const tracks = document.createElement('span')
-        tracks.setAttribute('class', 'item-category')
-        tracks.textContent = `${artist.followers.total} followers`
+        const tracks = document.createElement('span');
+        tracks.setAttribute('class', 'item-category');
+        tracks.textContent = `${artist.followers.total} followers`;
 
         // create span and set text to artist's main genre
-        const description = document.createElement('span')
+        const description = document.createElement('span');
         if (artist.genres.length == 0) {
-          description.textContent = "no artist genres"
+          description.textContent = "no artist genres";
         } else {
-          description.textContent = artist.genres[0]
+          description.textContent = artist.genres[0];
         }
 
         // create span for more info/view artist
-        const viewPlaylist = document.createElement('a')
-        viewPlaylist.href = artist.external_urls.spotify
-        viewPlaylist.setAttribute('id', 'playlist-id')
-        viewPlaylist.setAttribute('class', 'more-info')
-        viewPlaylist.textContent = "more info"
+        const viewPlaylist = document.createElement('a');
+        viewPlaylist.href = artist.external_urls.spotify;
+        viewPlaylist.setAttribute('id', 'playlist-id');
+        viewPlaylist.setAttribute('class', 'more-info');
+        viewPlaylist.textContent = "more info";
 
         // append
-        gridContent.appendChild(title)
-        gridContent.appendChild(tracks)
-        gridContent.appendChild(description)
-        gridContent.appendChild(viewPlaylist)
-        grid.append(gridItem)
+        gridContent.appendChild(title);
+        gridContent.appendChild(tracks);
+        gridContent.appendChild(description);
+        gridContent.appendChild(viewPlaylist);
+        grid.append(gridItem);
       })
     })
   }
 }
 
+// render login prompt if user is not logged in!
+
+function renderLogin(page) {
+  const app = document.getElementsByClassName('content')[0]
+  const h1 = document.createElement('h1')
+  h1.textContent = `${page}`
+  app.appendChild(h1)
+  const br = document.createElement('br')
+  const h2 = document.createElement('h2')
+  h2.textContent = 'Log in to see your playlists and insights!'
+  const login = document.createElement('a')
+  login.setAttribute('id', 'login')
+  const link = document.createTextNode('Login')
+  login.appendChild(link)
+  login.href = '/login'
+  app.appendChild(br)
+  app.appendChild(br.cloneNode())
+  app.appendChild(h2)
+  app.appendChild(br.cloneNode())
+  app.appendChild(br.cloneNode())
+  app.appendChild(login)
+}

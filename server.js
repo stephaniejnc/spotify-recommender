@@ -129,7 +129,7 @@ app.get('/callback', function (req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function (error, response, body) {
           console.log(body);
-          assign_global(access_token, body.id)
+          assign_global(access_token, body.display_name)
           res.redirect('userhome/#' +
           querystring.stringify({
             access_token: access_token,
@@ -174,7 +174,7 @@ app.get('/refresh_token', function (req, res) {
 // GET for logged in status
 app.get('/loginstatus', function (req, res) {
   if (token == "1") res.send(200, {"loggedin": false})  
-  else res.send(200, {"loggedin": true})
+  else res.send(200, {"loggedin": true, "username": user})
 })
 
 // GET logged in user's playlists
