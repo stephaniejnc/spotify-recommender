@@ -72,7 +72,7 @@ app.get('/login', function (req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email playlist-read-private';
+  var scope = 'user-read-private user-read-email playlist-read-private user-top-read';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -171,6 +171,12 @@ app.get('/refresh_token', function (req, res) {
   });
 });
 
+// GET for logged in status
+app.get('/loginstatus', function (req, res) {
+  if (token == "1") res.send(200, {"loggedin": false})  
+  else res.send(200, {"loggedin": true})
+})
+
 // GET logged in user's playlists
 app.get('/playlists', function (req, res) {
   
@@ -240,6 +246,23 @@ app.get('/searchuser', (req, res) => {
       res.send(body)
     })
   }
+})
+
+app.get('/userinsights', (req, res) => {
+
+  var insightOptions = {
+    url: `https://api.spotify.com/v1/me/top/artists`,
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8'
+    }
+  }
+  
+  request.get(insightOptions, function(error, response, body) {
+    console.log(body)
+    res.send(body)
+  })
 })
 
 app.get('/recommendations', async function (req, res) {
