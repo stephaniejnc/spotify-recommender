@@ -229,3 +229,84 @@ function loadPlaylists() {
 }
 
 
+function loadRecommendations() {
+/* TODO: Write properties for IDs and classes in CSS for the following
+  displayID = just a container for the entire display
+  recommendlist = the entire list of recommendations, nested in displayID
+  song-row = a single song listing with title and artist name, will be nested in recommendlist
+  track-item = name of the song, will be nested in song-row
+  singer-item = artist of the song, will be nested in song-row
+
+  ID and classes already exists:
+  class: background, container
+*/
+
+// Setting up empty divs for population 
+const display = document.getElementById('displayID')
+
+// TODO: Code the following constants nexted in display div in the html/ejs file
+const background = document.createElement('div')
+background.setAttribute('class', 'background')
+const container = document.createElement('div')
+container.setAttribute('class', 'container')
+
+const recommendlist = document.createElement('div')
+recommendlist.setAttribute('class', 'recommend-list')
+
+display.append(background)
+display.append(container)
+display.append(recommendlist)
+
+// fetch recommendations
+  fetch('/recommendations/:playlist_id/:playlist_id_2')
+    .then(response => {
+      //error response
+        if (response.status != 200) {
+          console.log(`Error ${response.status}`)
+          const h1 = document.createElement('h1')
+          h1.textContent = `Error ${response.status}: recommendations not found`
+          app.append(h1)
+        }
+      return response.json()
+    })
+    .then(data => {
+      console.log('Finding recommendations')
+      
+      //Getting the part of display reserved for showing title
+      const title = display.getElementById('center-heading')
+      title.textContent = `Recommendations`
+
+      
+      data.items.forEach(recommend => {
+        //Getting the part of display reserved for showing songs
+        const songitem = display.createElement('onesong')
+        songitem.setAttribute('class', 'song-row')
+        const title = display.createElement('track')
+        title.setAttribute('class', 'track-item')
+        const singer = display.createElement('artist')
+        singer.setAttribute('class', 'singer-item')
+
+        //JSON stores track name, artist name
+        //track container where name is the key for track
+        var track = recommend.name
+        var artist = recommend.artists.name
+        const br = document.createElement('br')
+
+        //Simple printing onto frontend
+        title.textContent = track
+        singer.textContent = artist
+
+        songitem.appendChild(title)
+        songitem.appendChild(singer)
+        recommendlist.appendChild(item)
+      })
+    }).catch(err => {
+      //error response
+      console.log(err)
+      const h1 = document.createElement('h1')
+      h1.textContent = `Error ${err.status}: recommendations not retrieved, ${err.message} :(`
+      app.append(h1)
+    })
+
+  }
+
