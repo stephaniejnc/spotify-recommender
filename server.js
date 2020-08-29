@@ -12,6 +12,8 @@ app.set('layout', 'layouts/layout')
 app.use(expressLayouts)
 app.use(express.static('public'))
 app.use(express.static(__dirname + '/public'))
+app.use(express.urlencoded());
+app.use(express.json());
 
 app.use('/', indexRouter)
 
@@ -33,8 +35,10 @@ var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 
+// placeholders for debugging
 var token = "1"
 var user = "2"
+var friend = "friend"
 
 function assign_global(access_token, user_id) {
   token = access_token
@@ -68,7 +72,7 @@ app.get('/login', function (req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email playlist-read-private';
+  var scope = 'user-read-private user-read-email playlist-read-private user-top-read';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -125,13 +129,13 @@ app.get('/callback', function (req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function (error, response, body) {
           console.log(body);
-          assign_global(access_token, body.id)
+          assign_global(access_token, body.display_name)
           res.redirect('userhome/#' +
-            querystring.stringify({
-              access_token: access_token,
-              refresh_token: refresh_token,
-              user: body.id
-            }));
+          querystring.stringify({
+            access_token: access_token,
+            refresh_token: refresh_token,
+            user: body.display_name
+          }));
         })
       } else {
         res.redirect('/#' +
@@ -166,6 +170,12 @@ app.get('/refresh_token', function (req, res) {
     }
   });
 });
+
+// GET for logged in status
+app.get('/loginstatus', function (req, res) {
+  if (token == "1") res.send(200, {"loggedin": false})  
+  else res.send(200, {"loggedin": true, "username": user})
+})
 
 // GET logged in user's playlists
 app.get('/playlists', function (req, res) {
@@ -205,6 +215,53 @@ app.post('/track', (req, res, next) => {
   // best practices to end
   res.json({
     status: 'Success: tracks of selected playlist added to Datastore'
+  })
+})
+
+// set up receiving POST from user search, sets variable for friend username
+app.post('/setfriend', (req, res) => {
+  console.log(req.body.username)
+  friend = req.body.username
+  res.redirect('/searchuser')
+})
+
+app.get('/searchuser', (req, res) => {
+
+  getPlaylists()
+  function getPlaylists() {
+    console.log(friend)
+    var playlistOptions = {
+      url: `https://api.spotify.com/v1/users/${friend}/playlists`,
+      headers: {
+          // use a temporary token from https://developer.spotify.com/console/get-playlists/?user_id=arixena&limit=&offset= to debug
+          // or, log in from Userhome every single time to debug (not reccomended)
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8'
+      }
+    }
+    
+    request.get(playlistOptions, function(error, response, body) {
+      console.log(body)
+      res.send(body)
+    })
+  }
+})
+
+app.get('/userinsights', (req, res) => {
+
+  var insightOptions = {
+    url: `https://api.spotify.com/v1/me/top/artists`,
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8'
+    }
+  }
+  
+  request.get(insightOptions, function(error, response, body) {
+    console.log(body)
+    res.send(body)
   })
 })
 
@@ -387,7 +444,6 @@ app.get('/recommendations/:playlist_id/:playlist_id_2', async function (req, res
   };
 
 });
-
 
 console.log('Listening on port 8888')
 app.listen(process.env.PORT || 8888)

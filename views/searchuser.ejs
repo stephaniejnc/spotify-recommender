@@ -1,0 +1,57 @@
+<nav>
+    <div class="logo">
+      <h3>spotify recommender</h3>
+    </div>
+      <ul class="nav-links">
+        <li><a href="/">about</a></li>
+        <li><a href="/userhome" class="active">user home</a></li>
+        <li><a href="/insights">insights</a></li>
+      </ul>
+      <div class="burger">
+        <div class="line1"></div>
+        <div class="line2"></div>
+        <div class="line3"></div>
+    </div>
+  </nav>
+  
+  <div class="content">
+      <h1>Userhome</h1>
+      <br>
+      <form action="/setfriend" method="POST">
+        <label for="username">Search for a friend's username:</label><br><br>
+        <input type="text" name="username" id="usernametext" placeholder="enter username..." onkeyup="success()">
+
+        <!-- onsubmit="loadFriendPlaylists()" executes immediately, doesn't wait for server to fetch playlists/username to be set !! -->
+        <input type="submit" value="Enter" id="submit" disabled onsubmit="loadFriendPlaylists()"/>
+      </form>
+  </div>
+
+  <script>
+    function success() {
+      if (document.getElementById("usernametext").value === "") {
+        document.getElementById('submit').disabled = true;
+        document.getElementById('submit').setAttribute("style", "cursor: not-allowed;");
+      } else {
+        document.getElementById('submit').disabled = false;
+        document.getElementById('submit').setAttribute("style", "cursor: pointer;");
+      }
+    }
+  
+  function loadFriendPlaylists() {
+    fetch("/searchuser")
+    .then(response => {
+      if (response.status != 200) {
+        console.log(`Error ${response.status}`)
+        const h1 = document.createElement('h1')
+        h1.textContent = `Error ${response.status}: playlists not retrieved :(`
+        app.append(h1)
+      }
+    return response.json()
+    })
+    .then(data => {
+      console.log(data)
+    })
+  }
+  </script>
+
+  
