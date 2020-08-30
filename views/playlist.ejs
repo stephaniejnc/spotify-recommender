@@ -113,9 +113,10 @@
       buttons.appendChild(confirm);
 
       // back button
-      const back = document.createElement('button');
+      const back = document.createElement('a');
       back.setAttribute('id', 'back');
       back.setAttribute('class', 'button');
+      back.setAttribute('href', '/userhome');
       back.textContent = 'Back';
       buttons.appendChild(back);
 
