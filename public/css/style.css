@@ -388,6 +388,7 @@ body {
     grid-row: 2 / span 1;
     margin: 0px auto;
     font-size: 24px;
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
     font-weight: bold;
     color: white;
 }
@@ -408,6 +409,7 @@ body {
     color: white;
     text-decoration: none;
     font-size: 20px;
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
     font-weight: bold;
 }
 
