@@ -48,23 +48,14 @@ window.location.hash = '';
 let access_token = hash.access_token;
 let refresh_token = hash.refresh_token;
 let playlist = hash.playlist;
-// let user = hash.user;
-var user = ""
-
-if (window.location.href.indexOf("insights") > -1) {
-  fetchInsights();
-}
-
-if (window.location.href.indexOf("userhome") > -1) {
-  loadPlaylists();
-}
+let user = hash.user;
 
 // Set cookie for 1 hour
 
 function setCookie(cname, cvalue) {
-  var now = new Date();
-  now.setTime(now.getTime() + 3600 * 1000);
-  var expires = "expires=" + now.toUTCString();
+  var now = new Date()
+  now.setTime(now.getTime() + 3600 * 1000)
+  var expires = "expires=" + now.toUTCString()
   document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
@@ -102,258 +93,220 @@ function checkCookie() {
         console.log(username)
         setCookie("username", user);
         loadPlaylists();
-     } else if (window.location.href.indexOf("userhome") > -1
-               && (username == null || access_token == "undefined")) {
-       renderLogin();
+     } else if (window.location.href.indexOf("userhome") > -1 && (username == null || access_token == "undefined")) {
+       const app = document.getElementsByClassName('content')[0]
+       const br1 = document.createElement('br')
+       const h1 = document.createElement('h1')
+       h1.textContent = 'User home'
+       const br = document.createElement('br')
+       const h2 = document.createElement('h2')
+       h2.textContent = 'Log in to see your playlists!'
+       const login = document.createElement('a')
+       login.setAttribute('id', 'login')
+       const link = document.createTextNode('Login')
+       login.appendChild(link)
+       login.href = '/login'
+       app.appendChild(br1)
+       app.appendChild(br1.cloneNode())
+       app.appendChild(br1.cloneNode())
+       app.appendChild(br1.cloneNode())
+       app.appendChild(br1.cloneNode())
+       app.appendChild(h1)
+       app.appendChild(br)
+       app.appendChild(br.cloneNode())
+       app.appendChild(h2)
+       app.appendChild(br.cloneNode())
+       app.appendChild(br.cloneNode())
+       app.appendChild(login)
      }
   }
 }
 
-async function isLoggedIn() {
-  return await fetch('/loginstatus')
-  .then(response => {
-    if (response.status != 200) {
-      console.log(`Error fetching login status.`)
-    }
-    return response.json();
-  })
-  .then(isLoggedIn => {
-    console.log(isLoggedIn);
-    var loginStatus = isLoggedIn.loggedin;
-    user = isLoggedIn.username;
-    // console.log(loginStatus);
-    return loginStatus;
-  })
-}
-
 // Fetch playlists if needed from URL hash
 
-async function loadPlaylists() {
+function loadPlaylists() {
+  const app = document.getElementById('root')
 
-  let loginstatus = await isLoggedIn();
+  const background = document.createElement('div')
+  background.setAttribute('class', 'background')
+  const container = document.createElement('div')
+  container.setAttribute('class', 'container')
 
-  const app = document.getElementById('root');
+  const grid = document.createElement('div')
+  grid.setAttribute('class', 'grid-row')
 
-  const container = document.createElement('div');
-  container.setAttribute('class', 'container');
-
-  const grid = document.createElement('div');
-  grid.setAttribute('class', 'grid-row');
-
-  app.append(container);
-  app.append(grid);
-
-  if (!loginstatus) {
-    renderLogin("User home");
-    return;
-  }
+  app.append(background)
+  app.append(container)
+  app.append(grid)
 
   // fetch my user playlists
   fetch('/playlists')
   .then(response => {
       if (response.status != 200) {
-        console.log(`Error ${response.status}`);
-        const h1 = document.createElement('h1');
-        h1.textContent = `Error ${response.status}: playlists not retrieved :(`;
-        app.append(h1);
+        console.log(`Error ${response.status}`)
+        const h1 = document.createElement('h1')
+        h1.textContent = `Error ${response.status}: playlists not retrieved :(`
+        app.append(h1)
       }
-    return response.json();
+    return response.json()
   })
   .then(data => {
-    console.log('Fetching playlists....');
-    const h1 = document.createElement('h1');
-    const br = document.createElement('br');
-    h1.textContent = `${user}'s playlists :)`;
-    container.appendChild(h1);
-    container.append(br);
+    console.log('Fetching playlists....')
+    // console.log(data)
+    const h1 = document.createElement('h1')
+    const br = document.createElement('br')
+    h1.textContent = `${user}'s playlists :)`
+    container.appendChild(h1)
+    container.append(br)
     data.items.forEach(playlist => {
 
         // create div with card grid-item and wrapper
-        const gridItem = document.createElement('div');
-        gridItem.setAttribute('class', 'grid-item');
-        const gridItemWrapper = document.createElement('div');
-        gridItemWrapper.setAttribute('class', 'grid-item-wrapper');
-        gridItem.appendChild(gridItemWrapper);
+        const gridItem = document.createElement('div')
+        gridItem.setAttribute('class', 'grid-item')
+        const gridItemWrapper = document.createElement('div')
+        gridItemWrapper.setAttribute('class', 'grid-item-wrapper')
+        gridItem.appendChild(gridItemWrapper)
 
         // create grid-item container
-        const gridItemContainer = document.createElement('div');
-        gridItemContainer.setAttribute('class', 'grid-item-container');
-        gridItemWrapper.appendChild(gridItemContainer);
+        const gridItemContainer = document.createElement('div')
+        gridItemContainer.setAttribute('class', 'grid-item-container')
+        gridItemWrapper.appendChild(gridItemContainer)
 
         // create grid-item image
-        const gridImage = document.createElement('div');
-        gridImage.setAttribute('class', 'grid-image-top');
-        var playlistImage = playlist.images[0];
+        const gridImage = document.createElement('div')
+        gridImage.setAttribute('class', 'grid-image-top')
+        var playlistImage = playlist.images[0]
         if (playlist.images[0]) {
-          gridImage.style.backgroundImage = `url(${playlistImage.url})`;
+        gridImage.style.backgroundImage = `url(${playlistImage.url})`
         }
-        gridItemContainer.appendChild(gridImage);
+        gridItemContainer.appendChild(gridImage)
         
         // create grid-item content
-        const gridContent = document.createElement('div');
-        gridContent.setAttribute('class', 'grid-item-content');
-        gridItemContainer.appendChild(gridContent);
+        const gridContent = document.createElement('div')
+        gridContent.setAttribute('class', 'grid-item-content')
+        gridItemContainer.appendChild(gridContent)
 
         // create span and set text to playlist title
-        const title = document.createElement('span');
-        title.setAttribute('class', 'item-title');
-        title.textContent = playlist.name;
+        const title = document.createElement('span')
+        title.setAttribute('class', 'item-title')
+        title.textContent = playlist.name
 
         // create span and set text to playlist title
-        const tracks = document.createElement('span');
-        tracks.setAttribute('class', 'item-category');
-        tracks.textContent = `${playlist.tracks.total} tracks`;
+        const tracks = document.createElement('span')
+        tracks.setAttribute('class', 'item-category')
+        tracks.textContent = `${playlist.tracks.total} tracks`
 
         // create span and set text to playlist description
         const description = document.createElement('span')
         if (playlist.description == "") {
-          description.textContent = "no playlist description";
+          description.textContent = "no playlist description"
         } else {
-          playlist.description = playlist.description.substring(0,25);
-          description.textContent = `${playlist.description}...`;
+        playlist.description = playlist.description.substring(0,25)
+        description.textContent = `${playlist.description}...`
         }
 
         // create span for more info/view playlist
-        const viewPlaylist = document.createElement('a');
-        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`;
-        viewPlaylist.setAttribute('id', 'playlist-id');
-        viewPlaylist.setAttribute('class', 'more-info');
-        viewPlaylist.textContent = "select playlist";
+        const viewPlaylist = document.createElement('a')
+        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`
+        viewPlaylist.setAttribute('id', 'playlist-id')
+        viewPlaylist.setAttribute('class', 'more-info')
+        viewPlaylist.textContent = "select playlist"
 
-        // append
-        gridContent.appendChild(title);
-        gridContent.appendChild(tracks);
-        gridContent.appendChild(description);
-        gridContent.appendChild(viewPlaylist);
-        grid.append(gridItem);
+      // append
+      gridContent.appendChild(title)
+      gridContent.appendChild(tracks)
+      gridContent.appendChild(description)
+      gridContent.appendChild(viewPlaylist)
+      grid.append(gridItem)
     })
   }).catch(err => {
-    console.log(err);
-    const h1 = document.createElement('h1');
-    h1.textContent = `Error ${err.status}: playlists not retrieved, ${err.message} :(`;
-    app.append(h1);
+    console.log(err)
+    const h1 = document.createElement('h1')
+    h1.textContent = `Error ${err.status}: playlists not retrieved, ${err.message} :(`
+    app.append(h1)
   })
 
 }
 
-// fetch personalized user insights 
 
-async function fetchInsights() {
-  let loginstatus = await isLoggedIn();
+function loadRecommendations() {
+/* TODO: Write properties for IDs and classes in CSS for the following
+  displayID = just a container for the entire display
+  recommendlist = the entire list of recommendations, nested in displayID
+  song-row = a single song listing with title and artist name, will be nested in recommendlist
+  track-item = name of the song, will be nested in song-row
+  singer-item = artist of the song, will be nested in song-row
 
-  const app = document.getElementById('root');
+  ID and classes already exists:
+  class: background, container
+*/
 
-  const container = document.createElement('div');
-  container.setAttribute('class', 'container');
+// Setting up empty divs for population 
+const display = document.getElementById('displayID')
 
-  const grid = document.createElement('div');
-  grid.setAttribute('class', 'grid-row');
+// TODO: Code the following constants nexted in display div in the html/ejs file
+const background = document.createElement('div')
+background.setAttribute('class', 'background')
+const container = document.createElement('div')
+container.setAttribute('class', 'container')
 
-  app.append(container);
-  app.append(grid);
+const recommendlist = document.createElement('div')
+recommendlist.setAttribute('class', 'recommend-list')
 
-  console.log(`login status awaited: ${loginstatus}`)
+display.append(background)
+display.append(container)
+display.append(recommendlist)
 
-  if (!loginstatus) {
-    renderLogin("Insights");
-    return;
-  } else {
-    fetch('/userinsights') 
+// fetch recommendations
+  fetch('/recommendations/:playlist_id/:playlist_id_2')
     .then(response => {
-      if (response.status != 200) {
-        console.log(response.status);
-      }
-      return response.json();
+      //error response
+        if (response.status != 200) {
+          console.log(`Error ${response.status}`)
+          const h1 = document.createElement('h1')
+          h1.textContent = `Error ${response.status}: recommendations not found`
+          app.append(h1)
+        }
+      return response.json()
     })
     .then(data => {
-    const h1 = document.createElement('h1');
-    const br = document.createElement('br');
-    h1.textContent = `${user}'s top artists :)`;
-    container.appendChild(h1);
-    container.append(br);
-    data.items.forEach(artist => {
+      console.log('Finding recommendations')
+      
+      //Getting the part of display reserved for showing title
+      const title = display.getElementById('center-heading')
+      title.textContent = `Recommendations`
 
-      // create div with card grid-item and wrapper
-        const gridItem = document.createElement('div');
-        gridItem.setAttribute('class', 'grid-item');
-        const gridItemWrapper = document.createElement('div');
-        gridItemWrapper.setAttribute('class', 'grid-item-wrapper');
-        gridItem.appendChild(gridItemWrapper);
+      
+      data.items.forEach(recommend => {
+        //Getting the part of display reserved for showing songs
+        const songitem = display.createElement('onesong')
+        songitem.setAttribute('class', 'song-row')
+        const title = display.createElement('track')
+        title.setAttribute('class', 'track-item')
+        const singer = display.createElement('artist')
+        singer.setAttribute('class', 'singer-item')
 
-        // create grid-item container
-        const gridItemContainer = document.createElement('div');
-        gridItemContainer.setAttribute('class', 'grid-item-container');
-        gridItemWrapper.appendChild(gridItemContainer);
+        //JSON stores track name, artist name
+        //track container where name is the key for track
+        var track = recommend.name
+        var artist = recommend.artists.name
+        const br = document.createElement('br')
 
-        // create grid-item image
-        const gridImage = document.createElement('div');
-        gridImage.setAttribute('class', 'grid-image-top');
-        var artistImage = artist.images[0];
-        if (artist.images[0]) {
-          gridImage.style.backgroundImage = `url(${artistImage.url})`;
-        }
-        gridItemContainer.appendChild(gridImage);
-        
-        // create grid-item content
-        const gridContent = document.createElement('div');
-        gridContent.setAttribute('class', 'grid-item-content');
-        gridItemContainer.appendChild(gridContent);
+        //Simple printing onto frontend
+        title.textContent = track
+        singer.textContent = artist
 
-        // create span and set text to artist name
-        const title = document.createElement('span');
-        title.setAttribute('class', 'item-title');
-        title.textContent = artist.name;
-
-        // create span and set text to artist followers
-        const tracks = document.createElement('span');
-        tracks.setAttribute('class', 'item-category');
-        tracks.textContent = `${artist.followers.total} followers`;
-
-        // create span and set text to artist's main genre
-        const description = document.createElement('span');
-        if (artist.genres.length == 0) {
-          description.textContent = "no artist genres";
-        } else {
-          description.textContent = artist.genres[0];
-        }
-
-        // create span for more info/view artist
-        const viewPlaylist = document.createElement('a');
-        viewPlaylist.href = artist.external_urls.spotify;
-        viewPlaylist.setAttribute('id', 'playlist-id');
-        viewPlaylist.setAttribute('class', 'more-info');
-        viewPlaylist.textContent = "more info";
-
-        // append
-        gridContent.appendChild(title);
-        gridContent.appendChild(tracks);
-        gridContent.appendChild(description);
-        gridContent.appendChild(viewPlaylist);
-        grid.append(gridItem);
+        songitem.appendChild(title)
+        songitem.appendChild(singer)
+        recommendlist.appendChild(item)
       })
+    }).catch(err => {
+      //error response
+      console.log(err)
+      const h1 = document.createElement('h1')
+      h1.textContent = `Error ${err.status}: recommendations not retrieved, ${err.message} :(`
+      app.append(h1)
     })
+
   }
-}
 
-// render login prompt if user is not logged in!
-
-function renderLogin(page) {
-  const app = document.getElementsByClassName('content')[0]
-  const h1 = document.createElement('h1')
-  h1.textContent = `${page}`
-  app.appendChild(h1)
-  const br = document.createElement('br')
-  const h2 = document.createElement('h2')
-  h2.textContent = 'Log in to see your playlists and insights!'
-  const login = document.createElement('a')
-  login.setAttribute('id', 'login')
-  const link = document.createTextNode('Login')
-  login.appendChild(link)
-  login.href = '/login'
-  app.appendChild(br)
-  app.appendChild(br.cloneNode())
-  app.appendChild(h2)
-  app.appendChild(br.cloneNode())
-  app.appendChild(br.cloneNode())
-  app.appendChild(login)
-}
