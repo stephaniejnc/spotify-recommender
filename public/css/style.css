@@ -2,10 +2,11 @@
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
+    background-color: black;
   }
   
   .content {
-    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     margin: 50px;
   }
   
@@ -19,7 +20,7 @@
 
 body {
   color: #000;
-  font-family: 'Monsterrat', 'Noto Sans TC', 'sans-serif';
+  font-family: 'Montserrat', sans-serif;
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;

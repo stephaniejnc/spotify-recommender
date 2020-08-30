@@ -1,31 +1,32 @@
 <nav>
-    <div class="logo">
-      <h3>spotify recommender</h3>
-    </div>
-      <ul class="nav-links">
-        <li><a href="/">about</a></li>
-        <li><a href="/userhome" class="active">user home</a></li>
-        <li><a href="/insights">insights</a></li>
-      </ul>
-      <div class="burger">
-        <div class="line1"></div>
-        <div class="line2"></div>
-        <div class="line3"></div>
-    </div>
-  </nav> 
-  
-  <div id="tracks"></div>
-  
+  <div class="logo">
+    <h3>spotify recommender</h3>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/">about</a></li>
+    <li><a href="/userhome" class="active">user home</a></li>
+    <li><a href="/insights">insights</a></li>
+  </ul>
+  <div class="burger">
+    <div class="line1"></div>
+    <div class="line2"></div>
+    <div class="line3"></div>
+  </div>
+</nav>
+
+<div id="tracks"></div>
+
 <script>
-  function getParameterByName(name, url) {
-    if (!url) url = window.location.href;
-    name = name.replace(/[\[\]]/g, '\\$&');
-    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-    results = regex.exec(url);
+  
+    function getParameterByName(name, url) {
+      if (!url) url = window.location.href;
+      name = name.replace(/[\[\]]/g, '\\$&');
+      var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
-  };
+  }
 
   function clearQuery() {
     var uri = window.location.toString();
@@ -35,37 +36,49 @@
     }
   }
 
-  var playlist_id = getParameterByName('playlist')
-  console.log(playlist_id)
-  var access_token = getParameterByName('access');
-  console.log(access_token)
+  var playlist_id = "playlist-id"
 
-  clearQuery()
-  loadTracks()
-
-  // get JSON object of track's audio features to pass into Datastore track entity
-  async function getAudioFeatures(track_id) {
-      const response = await fetch(`https://api.spotify.com/v1/audio-features/${track_id}`, {
-        headers: {
-          'Authorization': ' Bearer ' + access_token,
-        }
-      })
-      const json = await response.json()
-      console.log(json)
-      return json
+  // sends playlist_id to server to fetch playlists
+  async function postplaylist() {
+    playlist_id = await getParameterByName('playlist');
+    clearQuery()
+    
+    console.log(`Selected playlist ID: ${playlist_id}`);
+    postData('/playlistid', {
+      playlist: playlist_id
+    })
+      .then(res => {
+        console.log(res)
+    })
   }
 
-  var temp_playlist = [];
+    loadTracks()
 
-  function loadTracks() {
-    fetch(`https://api.spotify.com/v1/playlists/${playlist_id}`, {
-      headers: {
-        'Authorization': ' Bearer ' + access_token,
+    // get JSON object of track's audio features to pass into Datastore track entity
+    // async function getAudioFeatures(track_id) {
+    //     const response = await fetch(`https://api.spotify.com/v1/audio-features/${track_id}`, {
+    //       headers: {
+    //         'Authorization': ' Bearer ' + access_token,
+    //       }
+    //     })
+    //     const json = await response.json()
+    //     // console.log(json)
+    //     return json
+    // }
+  
+  var temp_playlist = []
+
+  async function loadTracks() {
+    await postplaylist();
+    fetch('/playlist-tracks')
+    .then(response => {
+      if (response.status != 200) {
+      console.log(`Error ${response.status}`)
       }
+      return response.json()
     })
     .then(playlist => {
       const app = document.getElementById('tracks');
-
       // two big divs for playlist and tracks
       const playlistInfo = document.createElement('div');
       playlistInfo.setAttribute('id', 'playlist-info');
@@ -73,7 +86,6 @@
       trackInfo.setAttribute('id', 'track-info');
       app.appendChild(playlistInfo);
       app.appendChild(trackInfo);
-
       // playlist image
       const playlist_img = document.createElement('img');
       playlist_img.setAttribute('id', 'playlist-cover');
@@ -86,18 +98,15 @@
         playlist_img.setAttribute('src', 'http://www.scottishculture.org/themes/scottishculture/images/music_placeholder.png');
       }
       playlistInfo.appendChild(playlist_img);
-
       // playlist name
       const playlist_name = document.createElement('p');
       playlist_name.setAttribute('id', 'playlist-name');
       playlist_name.textContent = playlist.name;
       playlistInfo.appendChild(playlist_name);
-
       // container for confirm/back buttons
       const buttons_div = document.createElement('div');
       buttons_div.setAttribute('id', 'buttons');
       playlistInfo.appendChild(buttons_div);
-
       // confirm button
       const confirm = document.createElement('button');
       confirm.setAttribute('id', 'confirm');
@@ -105,7 +114,6 @@
       confirm.textContent = 'Confirm';
       confirm.setAttribute('onclick', 'confirm()');
       buttons.appendChild(confirm);
-
       // back button
       const back = document.createElement('a');
       back.setAttribute('id', 'back');
@@ -113,20 +121,15 @@
       back.setAttribute('href', '/userhome');
       back.textContent = 'Back';
       buttons.appendChild(back);
-
       var hr_added = false;
-
       playlist.tracks.items.forEach(async (item) => {
         var artists = []
         item.track.artists.forEach(artist => {
           artists.push(artist.name)
         })
-
-        var audio_features = await getAudioFeatures(item.track.id)
-
         var temp_track = {
           artists: artists,
-          audio_features: audio_features,
+          audio_features: [],
           name: item.track.name,
           track_id: item.track_id,
           playlist_id: playlist_id
@@ -137,20 +140,17 @@
         if (hr_added) {
           const hr = document.createElement('hr');
           trackInfo.appendChild(hr);
-        }
-        else {
+        } else {
           hr_added = true;
         }
-
+        
         // create a row container for each track
         const track = document.createElement('div');
         track.setAttribute('class', 'track');
         trackInfo.appendChild(track);
-
         // container for track title + duration
         const div = document.createElement('div');
         track.appendChild(div);
-
         // music note icon
         const music_icon = document.createElement('img');
         music_icon.setAttribute('class', 'icon');
@@ -158,35 +158,31 @@
         music_icon.setAttribute('alt', 'A music note.');
         music_icon.setAttribute('onclick',`play('${item.track.preview_url}')`);
         div.appendChild(music_icon);
-
         // preview audio
         const preview_audio = document.createElement('audio');
         preview_audio.setAttribute('class', 'audio');
         preview_audio.setAttribute('id', item.track.preview_url);
         preview_audio.setAttribute('src', item.track.preview_url);
         div.appendChild(preview_audio);
-
         // track name
         const track_name = document.createElement('a');
         track_name.setAttribute('href', item.track.external_urls.spotify);
         track_name.setAttribute('class', 'track-name');
         track_name.textContent = item.track.name;
         div.appendChild(track_name);
-
         // duration
         const duration = document.createElement('span');
         duration.setAttribute('class', 'duration');
         duration.textContent = millisToMinutesAndSeconds(item.track.duration_ms);
         div.appendChild(duration);
-
         // artists
         const artist = document.createElement('p');
         artist.setAttribute('class', 'artist');
         artist.textContent = item.track.album.artists[0].name;
         track.appendChild(artist);
       });
-    })
-    .catch(err => {
+      })
+      .catch(err => {
         console.log(err)
       })
   }
@@ -239,5 +235,5 @@
   // }
 
   // runRecommendations()
-
+  
 </script>
