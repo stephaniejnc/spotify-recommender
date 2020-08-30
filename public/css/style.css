@@ -8,6 +8,11 @@
   .content {
     font-family: 'Montserrat', sans-serif;
     margin: 50px;
+    color: white;
+  }
+  
+  h1 {
+    color: white;
   }
   
   @import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
@@ -67,6 +72,7 @@ body {
 
 .grid-row a {
   text-decoration: none;
+  background-color: white;
 }
 
 .grid-item-wrapper {
@@ -89,6 +95,7 @@ body {
   height: 100%;
   width: 100%;
   position: relative;
+  background-color: white;
 }
 
 .grid-image-top {
@@ -116,6 +123,7 @@ body {
 
 .grid-item-content {
   padding: 0 20px 20px 20px;
+  background-color: white;
 }
 
 .item-title {
@@ -124,12 +132,14 @@ body {
   font-weight: 700;
   margin-bottom: 18px;
   display: block;
+  background-color: white;
 }
 
 .item-category {
   text-transform: uppercase;
   display: block;
   margin-bottom: 20px;
+  background-color: white;
   font-size: 14px;
 }
 
@@ -150,10 +160,9 @@ body {
   color: grey;
 }
 
-/* .more-info i {
-  padding-left: 5px;
-  transition-duration: .5s;
-} */
+.item-description {
+  background-color: white;
+}
 
 .more-info:hover {
   padding-left: 20px;
@@ -198,6 +207,8 @@ body {
     background-color: black;
     text-transform: capitalize;
     font-family: 'Montserrat', sans-serif;
+    position: relative;
+    z-index: 20;
   }
   
   .nav-links {
@@ -274,13 +285,18 @@ body {
       height: 95vh;
       width: 30%;
       top: 7vh;
-      background-color: black;
+      background-color: #222;
       transform: translateX(100%);
       transition: transform 0.3s ease-in;
     }
   
     .nav-links li {
       opacity: 0;
+      background-color: #222;
+    }
+
+    .nav-links a {
+      background-color: #222;
     }
   
     .burger {
@@ -291,6 +307,7 @@ body {
   
   .nav-active {
     transform: translateX(0%);
+    background-color: #222;
   }
   
   @keyframes navLinkFade {
@@ -328,6 +345,7 @@ body {
     text-decoration: none;
     font-weight: 300;
     color:#42474b;
+    background-color:white;
     text-align: center;
     transition: all 0.2s;
   }
