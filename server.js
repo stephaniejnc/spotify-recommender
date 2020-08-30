@@ -248,6 +248,7 @@ app.post('/track', (req, res, next) => {
   console.log('I got a track!')
   console.log(req.body)
   track = req.body
+  console.log("TRACK: " + track.track_id);
 
   tracks.addTrack(track.artists, track.audio_features, track.name, track.track_id, track.playlist_id, function (err) {
     if (err) return next(err);
