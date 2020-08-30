@@ -30,15 +30,15 @@
   function clearQuery() {
     var uri = window.location.toString();
     if (uri.indexOf("?") > 0) {
-    var clean_uri = uri.substring(0, uri.indexOf("?"));
-    window.history.replaceState({}, document.title, clean_uri);
-    }  
-  };
+      var clean_uri = uri.substring(0, uri.indexOf("?"));
+      window.history.replaceState({}, document.title, clean_uri);
+    }
+  }
 
-  var playlist_id = getParameterByName('playlist');
-  console.log(playlist_id);
+  var playlist_id = getParameterByName('playlist')
+  console.log(playlist_id)
   var access_token = getParameterByName('access');
-  console.log(access_token);
+  console.log(access_token)
 
   clearQuery()
   loadTracks()
@@ -59,15 +59,9 @@
 
   function loadTracks() {
     fetch(`https://api.spotify.com/v1/playlists/${playlist_id}`, {
-        headers: {
-            'Authorization': ' Bearer ' + access_token,
-        }
-    })
-    .then(response => {
-      if (response.status != 200) {
-      console.log(`Error ${response.status}`)
+      headers: {
+        'Authorization': ' Bearer ' + access_token,
       }
-    return response.json()
     })
     .then(playlist => {
       const app = document.getElementById('tracks');
@@ -138,10 +132,6 @@
           playlist_id: playlist_id
         };
         temp_playlist.push(temp_track);
-
-        // TODO: 
-        // 1. move the bottom chunk to a function that is triggered when the confirm button is hit
-        // 2. redirect back to userhome when back button is hit
       
         console.log('**CURRENT PLAYLIST**');
         console.log(temp_playlist);
@@ -201,7 +191,7 @@
     })
     .catch(err => {
         console.log(err)
-    })
+      })
   }
 
   function play(preview_url) {
@@ -226,16 +216,31 @@
   };
 
   // fetch post request
-  async function postData(url = '', data =  {}) {
+  async function postData(url = '', data = {}) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
-    }) 
+    })
     return response.json()
   }
 
+  // fetch get request
+  // async function getData(url = '', params = []) {
+  //   params.forEach(async (param) => {
+  //     url += "/" + param
+  //   });
+  //   const response = await fetch(url, {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     }
+  //   })
+  //   return response.json()
+  // }
+
+  // runRecommendations()
 
 </script>

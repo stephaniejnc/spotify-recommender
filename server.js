@@ -12,6 +12,8 @@ app.set('layout', 'layouts/layout')
 app.use(expressLayouts)
 app.use(express.static('public'))
 app.use(express.static(__dirname + '/public'))
+app.use(express.urlencoded());
+app.use(express.json());
 
 app.use('/', indexRouter)
 
@@ -33,8 +35,10 @@ var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 
+// placeholders for debugging
 var token = "1"
 var user = "2"
+var friend = "friend"
 
 function assign_global(access_token, user_id) {
   token = access_token
@@ -68,7 +72,7 @@ app.get('/login', function (req, res) {
   res.cookie(stateKey, state);
 
   // your application requests authorization
-  var scope = 'user-read-private user-read-email playlist-read-private';
+  var scope = 'user-read-private user-read-email playlist-read-private user-top-read';
   res.redirect('https://accounts.spotify.com/authorize?' +
     querystring.stringify({
       response_type: 'code',
@@ -125,12 +129,12 @@ app.get('/callback', function (req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function (error, response, body) {
           console.log(body);
-          assign_global(access_token, body.id)
+          assign_global(access_token, body.display_name)
           res.redirect('userhome/#' +
           querystring.stringify({
             access_token: access_token,
             refresh_token: refresh_token,
-            user: body.id
+            user: body.display_name
           }));
         })
       } else {
@@ -167,9 +171,15 @@ app.get('/refresh_token', function (req, res) {
   });
 });
 
+// GET for logged in status
+app.get('/loginstatus', function (req, res) {
+  if (token == "1") res.send(200, {"loggedin": false})  
+  else res.send(200, {"loggedin": true, "username": user})
+})
+
 // GET logged in user's playlists
 app.get('/playlists', function (req, res) {
-  
+
   getPlaylists();
 
   function getPlaylists() {
@@ -197,80 +207,150 @@ app.post('/track', (req, res, next) => {
   console.log(req.body)
   track = req.body
 
-  tracks.addTrack(track.artists, track.audio_features, track.name, track.track_id, track.playlist_id, function(err) {
+  tracks.addTrack(track.artists, track.audio_features, track.name, track.track_id, track.playlist_id, function (err) {
     if (err) return next(err);
     console.log('You added a track entity to Datastore!');
   });
 
   // best practices to end
   res.json({
-      status: 'Success: tracks of selected playlist added to Datastore'
+    status: 'Success: tracks of selected playlist added to Datastore'
   })
 })
 
-// user and token are global vars! 
-app.get('/recommendations', async function (req, res) {
-  // list of tracks in playlist
-  // input: tracklist 
-  var initPlaylist = ['3HqSLMAZ3g3d5poNaI7GOU', '4CoxD8tetisleUQDA7vn1B', '44WLOqH7QayQOQdeUHeKUK', '4BKOjYosPhw334moS3wlbO', '4AlihYDqxXshKhvh5tnMfP']; // get from Datastore
-  initPlaylist = shuffle(initPlaylist);
-  const initLen = initPlaylist.length;
-  var currPlaylist = []; // list of [chunkLen] songs
-  var accPlaylist = []; // cumulative list of recommendations
-  var chunksPlaylist = []; // partitioned initPlaylist
-  var countPlaylist = []; // counter version of accPlaylist (more compact version)
-  var chunkLen = 5; // default size of chunks
+// set up receiving POST from user search, sets variable for friend username
+app.post('/setfriend', (req, res) => {
+  console.log(req.body.username)
+  friend = req.body.username
+  res.redirect('/searchuser')
+})
 
-  if (initLen <= 5) {
-    chunkLen = (initLen / 2) + 1;
+app.get('/searchuser', (req, res) => {
+
+  getPlaylists()
+  function getPlaylists() {
+    console.log(friend)
+    var playlistOptions = {
+      url: `https://api.spotify.com/v1/users/${friend}/playlists`,
+      headers: {
+          // use a temporary token from https://developer.spotify.com/console/get-playlists/?user_id=arixena&limit=&offset= to debug
+          // or, log in from Userhome every single time to debug (not reccomended)
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json; charset=utf-8'
+      }
+    }
+    
+    request.get(playlistOptions, function(error, response, body) {
+      console.log(body)
+      res.send(body)
+    })
   }
+})
 
-  // chunking initPlaylist
-  for (var i = 0; i < initLen; i += chunkLen) {
-    chunksPlaylist[chunksPlaylist.length] = initPlaylist.slice(i, i + chunkLen);
+app.get('/userinsights', (req, res) => {
+
+  var insightOptions = {
+    url: `https://api.spotify.com/v1/me/top/artists`,
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8'
+    }
   }
+  
+  request.get(insightOptions, function(error, response, body) {
+    console.log(body)
+    res.send(body)
+  })
+})
 
-  for (var j = 0; j < chunksPlaylist.length; j++) {
+// get a list of recommendations for a playlist
+app.get('/recommendations/:playlist_id/:playlist_id_2', async function (req, res) {
+  var initPlaylist = [];
+  await getTracksByPlaylistId(req.params.playlist_id_2, async (err, songs) => {
+    console.log(req.params.playlist_id_2);
+    if (err) { console.log(err) }
+    for (var i = 0; i < songs.length; i++) {
+      initPlaylist.push(songs[i].track_id);
+    };
+    console.log("FIRST: " + initPlaylist);
 
-    currPlaylist = chunksPlaylist[j];
+    getTracksByPlaylistId(req.params.playlist_id, async (err, songs) => {
 
-    getRecs(currPlaylist)
-      .then(docs => {
-        docs = JSON.parse(docs);
-        for (track in docs["tracks"]) {
-          t = docs["tracks"][track];
-          accPlaylist.push(t['id']);
-        }
-        return accPlaylist;
-      })
-      .catch(err => {
-        res.status(400).send(err);
-      })
-      .then(() => {
-        countPlaylist = countRepeats(accPlaylist);
+      if (err) { console.log(err) }
+      for (var i = 0; i < songs.length; i++) {
+        initPlaylist.push(songs[i].track_id)
+      };
 
-        // truncate countPlaylist to initLen
-        countPlaylist = Object.keys(countPlaylist).slice(0, initLen);
+      console.log(initPlaylist.length);
+      console.log(initPlaylist);
 
-        getTracks(countPlaylist)
+      initPlaylist = shuffle(initPlaylist);
+
+      var initLen = initPlaylist.length;
+      var currPlaylist = []; // list of [chunkLen] songs
+      var accPlaylist = []; // cumulative list of recommendations
+      var chunksPlaylist = []; // partitioned initPlaylist
+      var countPlaylist = []; // counter version of accPlaylist (more compact version)
+      var chunkLen = 5; // default size of chunks
+
+      if (initLen <= 5) {
+        chunkLen = (initLen / 2) + 1;
+      }
+
+      // chunking initPlaylist
+      for (var i = 0; i < initLen; i += chunkLen) {
+        chunksPlaylist[chunksPlaylist.length] = initPlaylist.slice(i, i + chunkLen);
+      }
+
+      for (var j = 0; j < chunksPlaylist.length; j++) { // for each chunk
+
+        currPlaylist = chunksPlaylist[j];
+
+        await getRecs(currPlaylist)
           .then(docs => {
-            console.log("docs : " + docs);
             docs = JSON.parse(docs);
-            res.status(200).json({
-              count: countPlaylist.length,
-              recommendations: docs
-            });
+            for (track in docs["tracks"]) {
+              t = docs["tracks"][track];
+              accPlaylist.push(t['id']);
+            }
+            return accPlaylist;
           })
           .catch(err => {
             res.status(400).send(err);
           });
-      })
-      .catch(err => {
-        res.status(400).send(err);
-      });
-  }
+      }
+      countPlaylist = countRepeats(accPlaylist);
+
+      // truncate countPlaylist to initLen
+      if (initLen > 50) {
+        initLen = 50;
+      }
+      countPlaylist = Object.keys(countPlaylist).slice(0, initLen);
+
+      await getTracks(countPlaylist)
+        .then(docs => {
+          // console.log("docs : " + docs);
+          docs = JSON.parse(docs);
+          finalPlaylist = docs;
+          res.status(200).json({
+            count: docs.tracks.length,
+            recommendations: docs
+          });
+        })
+        .catch(err => {
+          res.status(400).json(err);
+        });
+
+    })
+  });
 
   // functions
+  // get tracks by playlist id
+  async function getTracksByPlaylistId(id, callback) {
+    tracks.getTracksByPlaylist(id, callback);
+  }
 
   // shuffle array
   function shuffle(lst) {
@@ -289,8 +369,7 @@ app.get('/recommendations', async function (req, res) {
   // get recommendations from Spotify 
   async function getRecs(tracks = [], artists = []) {
     var seed_tracks = "";
-    var seed_artists = "";
-    if (tracks.length > 1) {
+    if (tracks.length >= 1) {
       seed_tracks += "seed_tracks=";
       for (var i = 0; i < tracks.length - 1; i++) {
         seed_tracks += tracks[i] + "%2C";
@@ -298,25 +377,21 @@ app.get('/recommendations', async function (req, res) {
       seed_tracks += tracks[tracks.length - 1];
     };
 
-    if (artists.length > 1) {
-      seed_artists += "seed_artists=";
-      for (var i = 0; i < artists.length - 1; i++) {
-        seed_artists += artists[i] + "%2C";
-      };
-      seed_artists += artists[artists.length - 1] + "&";
-    };
+    console.log("REC INPUT: " + tracks);
+
     var limit = 8;
     var min_energy = 0.4;
     var min_popularity = 30;
 
     var playlistOptions = {
-      url: `https://api.spotify.com/v1/recommendations?limit=${limit}&${seed_artists}${seed_tracks}&min_energy=${min_energy}&min_popularity=${min_popularity}`,
+      url: `https://api.spotify.com/v1/recommendations?limit=${limit}&${seed_tracks}&min_energy=${min_energy}&min_popularity=${min_popularity}`,
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json; charset=utf-8'
       }
     }
+    var url = `https://api.spotify.com/v1/recommendations?limit=${limit}&${seed_tracks}&min_energy=${min_energy}&min_popularity=${min_popularity}`;
 
     var recs;
     await request.get(playlistOptions, function (error, response, body) {
@@ -339,7 +414,11 @@ app.get('/recommendations', async function (req, res) {
   };
 
   // getting several tracks
-  async function getTracks(lst) {
+  // TODO: expand capacity to more than 50 songs
+  async function getTracks(lst = []) {
+    if (lst.length < 1) {
+      return [];
+    }
     var ids = "";
     for (var i = 0; i < lst.length - 1; i++) {
       ids += lst[i] + "%2C";
@@ -356,19 +435,15 @@ app.get('/recommendations', async function (req, res) {
     }
 
     console.log('url: ' + `https://api.spotify.com/v1/tracks?ids=${ids}`);
-
     var tracks = [];
 
     await request.get(playlistOptions, function (error, response, body) {
-      console.log("body : " + body);
       tracks = body;
     })
-    console.log("tracks: " + tracks);
     return tracks;
   };
 
 });
-
 
 console.log('Listening on port 8888')
 app.listen(process.env.PORT || 8888)
