@@ -168,7 +168,15 @@
         music_icon.setAttribute('class', 'icon');
         music_icon.setAttribute('src', '/images/note.png');
         music_icon.setAttribute('alt', 'A music note.');
+        music_icon.setAttribute('onclick',`play('${item.track.preview_url}')`);
         div.appendChild(music_icon);
+
+        // preview audio
+        const preview_audio = document.createElement('audio');
+        preview_audio.setAttribute('class', 'audio');
+        preview_audio.setAttribute('id', item.track.preview_url);
+        preview_audio.setAttribute('src', item.track.preview_url);
+        div.appendChild(preview_audio);
 
         // track name
         const track_name = document.createElement('a');
@@ -193,6 +201,11 @@
     .catch(err => {
         console.log(err)
     })
+  }
+
+  function play(preview_url) {
+    var audio = document.getElementById(preview_url);
+    audio.play();
   }
 
   function millisToMinutesAndSeconds(millis) {

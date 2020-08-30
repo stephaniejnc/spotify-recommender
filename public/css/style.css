@@ -25,6 +25,10 @@ body {
   line-height: 1.4;
 }
 
+.audio {
+  display: none;
+}
+
 .container {
   max-width: 1335px;
   margin: 0 auto;
@@ -436,6 +440,8 @@ body {
     max-width: 10px;
     max-height: 10px;
     margin-right: 10px;
+
+    cursor: pointer;
 }
 
 .artist {
