@@ -1,21 +1,21 @@
 <nav>
-    <div class="logo">
-      <h3>spotify recommender</h3>
-    </div>
-      <ul class="nav-links">
-        <li><a href="/">about</a></li>
-        <li><a href="/userhome" class="active">user home</a></li>
-        <li><a href="/insights">insights</a></li>
-      </ul>
-      <div class="burger">
-        <div class="line1"></div>
-        <div class="line2"></div>
-        <div class="line3"></div>
-    </div>
-  </nav> 
-  
-  <div id="root"></div>
-  
+  <div class="logo">
+    <h3>spotify recommender</h3>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/">about</a></li>
+    <li><a href="/userhome" class="active">user home</a></li>
+    <li><a href="/insights">insights</a></li>
+  </ul>
+  <div class="burger">
+    <div class="line1"></div>
+    <div class="line2"></div>
+    <div class="line3"></div>
+  </div>
+</nav>
+
+<div id="root"></div>
+
 <script>
   
     function getParameterByName(name, url) {
@@ -23,18 +23,18 @@
       name = name.replace(/[\[\]]/g, '\\$&');
       var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
       results = regex.exec(url);
-      if (!results) return null;
-      if (!results[2]) return '';
-      return decodeURIComponent(results[2].replace(/\+/g, ' '));
-    }
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
 
-    function clearQuery() {
-      var uri = window.location.toString();
-      if (uri.indexOf("?") > 0) {
+  function clearQuery() {
+    var uri = window.location.toString();
+    if (uri.indexOf("?") > 0) {
       var clean_uri = uri.substring(0, uri.indexOf("?"));
       window.history.replaceState({}, document.title, clean_uri);
-      }  
     }
+  }
 
   var playlist_id = "playlist-id"
 
@@ -83,7 +83,7 @@
       if (response.status != 200) {
       console.log(`Error ${response.status}`)
       }
-    return response.json()
+      return response.json()
     })
     .then(playlist => {
       playlist.tracks.items.forEach(async (item) => {
@@ -123,40 +123,47 @@
         gridImage.setAttribute('class', 'grid-image-top')
         var trackImage = item.track.album.images[0]
         if (item.track.album.images[0]) {
-        gridImage.style.backgroundImage = `url(${trackImage.url})`
+          gridImage.style.backgroundImage = `url(${trackImage.url})`
         }
-        gridItemContainer.appendChild(gridImage)
-        
-        // create grid-item content
-        const gridContent = document.createElement('div')
-        gridContent.setAttribute('class', 'grid-item-content')
-        gridItemContainer.appendChild(gridContent)
+          gridItemContainer.appendChild(gridImage)
 
-        // create span and set text to playlist title
-        const title = document.createElement('span')
-        title.setAttribute('class', 'item-title')
-        title.textContent = item.track.name
+          // create grid-item content
+          const gridContent = document.createElement('div')
+          gridContent.setAttribute('class', 'grid-item-content')
+          gridItemContainer.appendChild(gridContent)
 
-        // create span and set text to track artist name
-        const tracks = document.createElement('span')
-        tracks.setAttribute('class', 'item-category')
-        tracks.textContent = `${item.track.album.artists[0].name}`
+          // create span and set text to playlist title
+          const title = document.createElement('span')
+          title.setAttribute('class', 'item-title')
+          title.textContent = item.track.name
 
-        // create span and set text to playlist description
-        const description = document.createElement('span')
-        description.textContent = millisToMinutesAndSeconds(item.track.duration_ms)
-        
-        // append
-        gridContent.appendChild(title)
-        gridContent.appendChild(tracks)
-        gridContent.appendChild(description)
-        grid.append(gridItem)
-      });
-    })
-    .catch(err => {
+          // create span and set text to track artist name
+          const tracks = document.createElement('span')
+          tracks.setAttribute('class', 'item-category')
+          tracks.textContent = `${item.track.album.artists[0].name}`
+
+          // create span and set text to playlist description
+          const description = document.createElement('span')
+          description.textContent = millisToMinutesAndSeconds(item.track.duration_ms)
+
+          // append
+          gridContent.appendChild(title)
+          gridContent.appendChild(tracks)
+          gridContent.appendChild(description)
+          grid.append(gridItem)
+        });
+      })
+      .catch(err => {
         console.log(err)
-    })
+      })
   }
+
+  // function runRecommendations() {
+  //   getData('/recommendations', [playlist_id])
+  //     .then(res =>
+  //       console.log(res)
+  //     )
+  // }
 
   function millisToMinutesAndSeconds(millis) {
     var minutes = Math.floor(millis / 60000);
@@ -165,16 +172,31 @@
   }
 
   // fetch post request
-  async function postData(url = '', data =  {}) {
+  async function postData(url = '', data = {}) {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data)
-    }) 
+    })
     return response.json()
   }
 
+  // fetch get request
+  // async function getData(url = '', params = []) {
+  //   params.forEach(async (param) => {
+  //     url += "/" + param
+  //   });
+  //   const response = await fetch(url, {
+  //     method: 'GET',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     }
+  //   })
+  //   return response.json()
+  // }
+
+  // runRecommendations()
 
 </script>
