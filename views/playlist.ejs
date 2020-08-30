@@ -99,12 +99,10 @@
           artists: artists,
           audio_features: [],
           name: item.track.name,
-          track_id: item.track.id,
-          playlist_id: playlist_id,
+          track_id: item.track_id,
+          playlist_id: playlist_id
         })
-          .then(res => {
-            console.log(res)
-        })
+        temp_playlist.push(temp_track);
 
         // create div with card grid-item and wrapper
         const gridItem = document.createElement('div')
