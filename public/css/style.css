@@ -5,7 +5,7 @@
   }
   
   .content {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
     margin: 50px;
   }
   
@@ -19,10 +19,14 @@
 
 body {
   color: #000;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Monsterrat', 'Noto Sans TC', 'sans-serif';
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
+}
+
+.audio {
+  display: none;
 }
 
 .container {
@@ -236,6 +240,22 @@ body {
     .nav-links {
       width: 50%;
     }
+    #tracks {
+      grid-template-rows: 1fr 5fr;
+      grid-template-columns: 1fr;
+    }
+
+    #playlist-info {
+        grid-row: 1 / span 1;
+        grid-column: 1 / span 1;
+    }
+
+    #track-info {
+        grid-row: 2 / span 1;
+        grid-column: 1 / span 1;
+
+        margin: 0 auto;
+    }
   }
   
   /* responsive navbar for mobile */
@@ -316,6 +336,118 @@ body {
     background-color: #1ed760;
   }
 
+  :root {
+    --spotify-green: #1ed760;
+}
+
+#tracks {
+  background-color: black;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 2fr;
+
+    margin-top: 50px;
+}
+
+#playlist-info {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
+    
+    display: grid;
+    grid-template-rows: 3fr 1fr 1fr;
+    margin: 0px auto;
+}
+
+#playlist-cover {
+    grid-row: 1 / span 1;
+    padding: 30px 0px;
+    max-width: 300px;
+    max-height: 300px;
+}
+
+#playlist-name {
+    grid-row: 2 / span 1;
+    margin: 0px auto;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+}
+
+#track-info {
+    display: flex;
+    flex-direction: column;
+    color: white;
+    margin: 0px 300px 0px 10px;
+}
+
+.track {
+    width: 100%;
+    margin: 15px 10px;
+}
+
+.track-name {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.track-name:hover {
+    background: linear-gradient(180deg,rgba(255,255,255,0) 70%, #5C5C5C 70%);
+}
+
+.duration {
+    color: #C2C2C2;
+    padding: 0px 20px;
+}
+
+#buttons {
+    grid-row: 3 / span 1;
+    grid-column: 1 / span 1;
+}
+
+.button {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 24px;
+    opacity: 0.9;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+.button:hover {
+    opacity: 1.0;
+}
+
+#confirm {
+    background-color: var(--spotify-green);
+}
+
+#back {
+    background-color: #5C5C5C;
+}
+
+.icon {
+    grid-row: 1 / span 2;
+    grid-column: 1 / span 1;
+    max-width: 10px;
+    max-height: 10px;
+    margin-right: 10px;
+
+    cursor: pointer;
+}
+
+.artist {
+    margin: 10px 0px;
+    padding-left: 20px;
+}
 input[type=text] {
     font-family: 'Montserrat', sans-serif;
     width: 80%;
