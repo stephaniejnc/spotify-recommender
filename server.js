@@ -38,11 +38,14 @@ var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
 // placeholders for debugging
 var token = "1"
 var user = "2"
+var display_name = "display_name"
 var friend = "friend"
+var playlist = "playlist_id"
 
-function assign_global(access_token, user_id) {
+function assign_global(access_token, user_id, user_display_name) {
   token = access_token
   user = user_id
+  display_name = user_display_name
 }
 
 /**
@@ -129,7 +132,7 @@ app.get('/callback', function (req, res) {
         // use the access token to access the Spotify Web API
         request.get(options, function (error, response, body) {
           console.log(body);
-          assign_global(access_token, body.display_name)
+          assign_global(access_token, body.id, body.display_name)
           res.redirect('userhome/#' +
           querystring.stringify({
             access_token: access_token,
@@ -174,7 +177,7 @@ app.get('/refresh_token', function (req, res) {
 // GET for logged in status
 app.get('/loginstatus', function (req, res) {
   if (token == "1") res.send(200, {"loggedin": false})  
-  else res.send(200, {"loggedin": true, "username": user})
+  else res.send(200, {"loggedin": true, "username": display_name})
 })
 
 // GET logged in user's playlists
@@ -194,11 +197,49 @@ app.get('/playlists', function (req, res) {
     }
 
     request.get(playlistOptions, function (error, response, body) {
+      // console.log(body)
+      res.send(body)
+    })
+  }
+
+})
+
+// GET logged in user's playlist tracks
+app.get('/playlist-tracks', function (req, res) {
+  
+  getTracks();
+
+  function getTracks() {
+    console.log(playlist)
+    console.log(token)
+    var playlistOptions = {
+      url: `https://api.spotify.com/v1/playlists/${playlist}`,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    }
+
+    request.get(playlistOptions, function (error, response, body) {
       console.log(body)
       res.send(body)
     })
   }
 
+})
+
+// set up endpoint for POST (receiving playlist id selection)
+app.post('/playlistid', (req, res, next) => {
+  console.log('I got the selected playlist ID!');
+  console.log(req.body);
+
+  playlist = req.body.playlist;
+
+  // best practices to end
+  res.json({
+      status: 'Success: playlist ID stored on server'
+  })
 })
 
 // set up endpoint for POST
