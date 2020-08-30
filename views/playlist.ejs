@@ -18,7 +18,7 @@
 
 <script>
   
-    function getParameterByName(name, url) {
+  function getParameterByName(name, url) {
       if (!url) url = window.location.href;
       name = name.replace(/[\[\]]/g, '\\$&');
       var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
@@ -131,7 +131,7 @@
           artists: artists,
           audio_features: [],
           name: item.track.name,
-          track_id: item.track_id,
+          track_id: item.track.id,
           playlist_id: playlist_id
         };
         temp_playlist.push(temp_track);
@@ -200,7 +200,6 @@
 
   function confirm() {
     for (var i = 0; i < temp_playlist.length; ++i) {
-      console.log('SENT A SONG');
       postData('/track', temp_playlist[i])
           .then(res => {
             console.log(res)
