@@ -83,6 +83,7 @@
       if (response.status != 200) {
       console.log(`Error ${response.status}`)
       }
+      return response.json()
     })
     .then(playlist => {
       playlist.tracks.items.forEach(async (item) => {
@@ -122,50 +123,8 @@
         gridImage.setAttribute('class', 'grid-image-top')
         var trackImage = item.track.album.images[0]
         if (item.track.album.images[0]) {
-        gridImage.style.backgroundImage = `url(${trackImage.url})`
+          gridImage.style.backgroundImage = `url(${trackImage.url})`
         }
-        return response.json()
-      })
-      .then(playlist => {
-        playlist.tracks.items.forEach(async (item) => {
-          var artists = []
-          item.track.artists.forEach(artist => {
-            artists.push(artist.name)
-          })
-
-          var audio_features = await getAudioFeatures(item.track.id)
-
-          // send track info to server for Datastore
-          postData('/track', {
-            artists: artists,
-            audio_features: audio_features,
-            name: item.track.name,
-            track_id: item.track.id,
-            playlist_id: playlist_id,
-          })
-            .then(res => {
-              console.log(res)
-            })
-
-          // create div with card grid-item and wrapper
-          const gridItem = document.createElement('div')
-          gridItem.setAttribute('class', 'grid-item')
-          const gridItemWrapper = document.createElement('div')
-          gridItemWrapper.setAttribute('class', 'grid-item-wrapper')
-          gridItem.appendChild(gridItemWrapper)
-
-          // create grid-item container
-          const gridItemContainer = document.createElement('div')
-          gridItemContainer.setAttribute('class', 'grid-item-container')
-          gridItemWrapper.appendChild(gridItemContainer)
-
-          // create grid-item image
-          const gridImage = document.createElement('div')
-          gridImage.setAttribute('class', 'grid-image-top')
-          var trackImage = item.track.album.images[0]
-          if (item.track.album.images[0]) {
-            gridImage.style.backgroundImage = `url(${trackImage.url})`
-          }
           gridItemContainer.appendChild(gridImage)
 
           // create grid-item content
@@ -197,7 +156,6 @@
       .catch(err => {
         console.log(err)
       })
-  })
 }
 
   // function runRecommendations() {
