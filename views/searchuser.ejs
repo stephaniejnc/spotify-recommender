@@ -17,13 +17,10 @@
   <div class="content">
       <h1>Userhome</h1>
       <br>
-      <form action="/setfriend" method="POST">
-        <label for="username">Search for a friend's username:</label><br><br>
-        <input type="text" name="username" id="usernametext" placeholder="enter username..." onkeyup="success()">
+      <input type="text" id="friend_username" />
+      <button onclick="loadFriendPlaylists()">CLICK ME</button>
 
-        <!-- onsubmit="loadFriendPlaylists()" executes immediately, doesn't wait for server to fetch playlists/username to be set !! -->
-        <input type="submit" value="Enter" id="submit" disabled onsubmit="loadFriendPlaylists()"/>
-      </form>
+      <div id="root"></div>
   </div>
 
   <script>
@@ -37,20 +34,146 @@
       }
     }
   
-  function loadFriendPlaylists() {
-    fetch("/searchuser")
+    // loadFriendPlaylists();
+
+    async function loadFriendPlaylists() {
+
+    var friend_username =  document.getElementById("friend_username").value;
+    console.log(friend_username);
+
+    postData('/searchuser', {
+      username: friend_username
+    })
+          .then(res => {
+            console.log(res)
+      });
+
+    let loginstatus = await isLoggedIn();
+    console.log(loginstatus);
+
+    const app = document.getElementById('root');
+
+    const container = document.createElement('div');
+    container.setAttribute('class', 'container');
+
+    const grid = document.createElement('div');
+    grid.setAttribute('class', 'grid-row');
+
+    app.append(container);
+    app.append(grid);
+
+    console.log("loading friend playlists");
+    fetch('/searchuserplaylists')
     .then(response => {
       if (response.status != 200) {
         console.log(`Error ${response.status}`)
         const h1 = document.createElement('h1')
-        h1.textContent = `Error ${response.status}: playlists not retrieved :(`
+        h1.textContent = `Error ${response.status}: playlists not retrieved - double check the username!`
         app.append(h1)
       }
+      console.log(response)
     return response.json()
     })
     .then(data => {
       console.log(data)
+      console.log('Fetching playlists....');
+    const h1 = document.createElement('h1');
+    const br = document.createElement('br');
+    h1.textContent = `${user}'s playlists :)`;
+    container.appendChild(h1);
+    container.append(br);
+    data.items.forEach(playlist => {
+
+        // create div with card grid-item and wrapper
+        const gridItem = document.createElement('div');
+        gridItem.setAttribute('class', 'grid-item');
+        const gridItemWrapper = document.createElement('div');
+        gridItemWrapper.setAttribute('class', 'grid-item-wrapper');
+        gridItem.appendChild(gridItemWrapper);
+
+        // create grid-item container
+        const gridItemContainer = document.createElement('div');
+        gridItemContainer.setAttribute('class', 'grid-item-container');
+        gridItemWrapper.appendChild(gridItemContainer);
+
+        // create grid-item image
+        const gridImage = document.createElement('div');
+        gridImage.setAttribute('class', 'grid-image-top');
+        var playlistImage = playlist.images[0];
+        if (playlist.images[0]) {
+          gridImage.style.backgroundImage = `url(${playlistImage.url})`;
+        }
+        gridItemContainer.appendChild(gridImage);
+        
+        // create grid-item content
+        const gridContent = document.createElement('div');
+        gridContent.setAttribute('class', 'grid-item-content');
+        gridItemContainer.appendChild(gridContent);
+
+        // create span and set text to playlist title
+        const title = document.createElement('span');
+        title.setAttribute('class', 'item-title');
+        title.textContent = playlist.name;
+
+        // create span and set text to playlist title
+        const tracks = document.createElement('span');
+        tracks.setAttribute('class', 'item-category');
+        tracks.textContent = `${playlist.tracks.total} tracks`;
+
+        // create span and set text to playlist description
+        const description = document.createElement('span')
+        description.setAttribute('class', 'item-description');
+        if (playlist.description == "") {
+          description.textContent = "no playlist description";
+        } else {
+          playlist.description = playlist.description.substring(0,25);
+          description.textContent = `${playlist.description}...`;
+        }
+
+        // create span for more info/view playlist
+        const viewPlaylist = document.createElement('a');
+        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`;
+        viewPlaylist.setAttribute('id', 'playlist-id');
+        viewPlaylist.setAttribute('class', 'more-info');
+        viewPlaylist.textContent = "select playlist";
+
+        // append
+        gridContent.appendChild(title);
+        gridContent.appendChild(tracks);
+        gridContent.appendChild(description);
+        gridContent.appendChild(viewPlaylist);
+        grid.append(gridItem);
     })
+  })
+}
+
+  async function isLoggedIn() {
+  return await fetch('/loginstatus')
+  .then(response => {
+    if (response.status != 200) {
+      console.log(`Error fetching login status.`)
+    }
+    return response.json();
+  })
+  .then(isLoggedIn => {
+    console.log(isLoggedIn);
+    var loginStatus = isLoggedIn.loggedin;
+    user = isLoggedIn.username;
+    // console.log(loginStatus);
+    return loginStatus;
+  })
+}
+
+// fetch post request
+async function postData(url = '', data = {}) {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    return response.json()
   }
   </script>
 

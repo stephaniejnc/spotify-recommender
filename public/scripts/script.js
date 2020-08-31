@@ -49,6 +49,7 @@ let refresh_token = hash.refresh_token;
 let playlist = hash.playlist;
 // let user = hash.user;
 var user = ""
+var friend_user = hash.friend;
 
 if (window.location.href.indexOf("insights") > -1) {
   fetchInsights();
