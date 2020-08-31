@@ -37,7 +37,7 @@
     }
   }
 
-  var playlist_id = "playlist-id"
+  var playlist_id = "playlist-id";
 
   // sends playlist_id to server to fetch playlists
   async function postplaylist() {
@@ -71,7 +71,6 @@
   var onPlay = false;
 
   async function loadTracks() {
-
     await postplaylist();
     fetch('/playlist-tracks')
       .then(response => {
@@ -117,12 +116,16 @@
         confirm.setAttribute('class', 'button');
         confirm.textContent = 'Confirm';
         confirm.setAttribute('onclick', 'confirm()');
-        confirm.setAttribute('href', `/recommend`);
+        confirm.setAttribute('href', '/searchuser');
+
+
+
         buttons.appendChild(confirm);
         // back button
         const back = document.createElement('a');
         back.setAttribute('id', 'back');
         back.setAttribute('class', 'button');
+        back.setAttribute('onclick', 'popPlaylist()')
         back.setAttribute('href', '/userhome');
         back.textContent = 'Back';
         buttons.appendChild(back);
@@ -195,11 +198,6 @@
       })
   }
 
-  // function play(preview_url) {
-  //   var audio = document.getElementById(preview_url);
-  //   audio.play();
-  // }
-
   function play(preview_url) {
     var audio = document.getElementById(preview_url);
     console.log(audio);
@@ -218,6 +216,7 @@
   }
 
   async function confirm() {
+
     for (var i = 0; i < temp_playlist.length; ++i) {
       postData('/track', temp_playlist[i])
         .then(res => {
@@ -227,6 +226,14 @@
     }
     // await recommend();
   };
+
+  async function popPlaylist() {
+    fetch('/popPlaylist')
+      .then(data => {
+        console.log(data);
+      })
+
+  }
 
   // fetch post request
   async function postData(url = '', data = {}) {

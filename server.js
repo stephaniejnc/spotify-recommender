@@ -251,6 +251,19 @@ app.post('/playlistid', (req, res, next) => {
   })
 })
 
+// delete last element if back
+app.get('/popPlaylist', (req, res, next) => {
+
+  playlist.pop();
+  console.log(playlist);
+
+  // best practices to end
+  res.json({
+    status: 'Success: playlist shortened',
+    playlist: playlist
+  })
+})
+
 // set up endpoint for POST
 app.post('/track', (req, res, next) => {
   console.log(req.body)
@@ -333,17 +346,14 @@ app.get('/userinsights', (req, res) => {
 app.get('/recommendations', async function (req, res) {
 
   var initPlaylist = [];
-  await getTracksByPlaylistId(playlist2, async (err, songs) => {
-    console.log("PLAYLIST ID 2: " + playlist2);
+  await getTracksByPlaylistId(playlist[1], async (err, songs) => {
     if (err) { console.log(err) }
     for (var i = 0; i < songs.length; i++) {
       initPlaylist.push(songs[i].track_id);
     };
     console.log("FIRST: " + initPlaylist);
 
-    getTracksByPlaylistId(playlist, async (err, songs) => {
-      console.log("PLAYLIST ID: " + playlist);
-
+    getTracksByPlaylistId(playlist[0], async (err, songs) => {
       if (err) { console.log(err) }
       for (var i = 0; i < songs.length; i++) {
         initPlaylist.push(songs[i].track_id)
