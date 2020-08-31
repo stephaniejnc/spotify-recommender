@@ -78,7 +78,7 @@
       }
       return response.json()
     })
-    .then(playlist => {
+    .then(async playlist => {
       const app = document.getElementById('tracks');
       // two big divs for playlist and tracks
       const playlistInfo = document.createElement('div');
@@ -115,10 +115,11 @@
       confirm.textContent = 'Confirm';
       confirm.setAttribute('onclick', 'confirm()');
 
-      getPlaylistArray();
+      await getPlaylistArray();
       // now our local playlist id array is populated
       
-      if (playlist_id_array.length == 1) {
+      console.log(playlist_id_array);
+      if (playlist_id_array.length == 0) {
         confirm.setAttribute('href', '/searchuser');
       } else {
         confirm.setAttribute('href', '/recommend');

@@ -176,7 +176,7 @@ app.get('/refresh_token', function (req, res) {
 });
 
 // GET for logged in status
-app.get('/loginstatus', function (req, res) {
+app.get('/playlistArray', function (req, res) {
   res.send(200, {
     "playlistArray": playlist
   })
@@ -329,7 +329,7 @@ app.get('/userinsights', (req, res) => {
 
 
 // GET for logged in status
-app.get('/playlistArray', function (req, res) {
+app.get('/loginstatus', function (req, res) {
   if (token == "1") res.send(200, {"loggedin": false})  
   else res.send(200, {"loggedin": true, "username": display_name})
 })
