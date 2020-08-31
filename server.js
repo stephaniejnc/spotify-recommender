@@ -210,7 +210,6 @@ app.get('/playlist-tracks', function (req, res) {
   getTracks();
 
   function getTracks() {
-<<<<<<< HEAD
     console.log(playlist)
     console.log(token)
     var select_playlist;
@@ -221,8 +220,6 @@ app.get('/playlist-tracks', function (req, res) {
       select_playlist = playlist[1]
     }
 
-=======
->>>>>>> master
     var playlistOptions = {
       url: `https://api.spotify.com/v1/playlists/${select_playlist}`,
       headers: {
