@@ -34,7 +34,7 @@ module.exports = function () {
     }
 
     async function getAudioFeaturesById(track_id) {
-        console.log('Getting audio features...');
+        console.log('Getting audio features');
         var query = datastore.createQuery(['Track']).filter('track_id', '=', track_id);
         const returnedTracks = await datastore.runQuery(query);
         var audio_features = returnedTracks[0][0].audio_features;
