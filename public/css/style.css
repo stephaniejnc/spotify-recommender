@@ -4,7 +4,13 @@
     box-sizing: border-box;
     background-color: black;
   }
-  
+
+  .background {
+    background-color: black;
+    height: 100vh;
+    width: 100vw;
+  }
+
   .content {
     font-family: 'Montserrat', sans-serif;
     margin: 50px;
@@ -199,6 +205,8 @@ body {
   }
 }
 
+/* responsive navbar for tablet */
+@media screen and (max-width: 1020px) {
   nav {
     display: flex;
     justify-content: space-around;
@@ -304,6 +312,41 @@ body {
       cursor: pointer;
     }
   }
+}
+
+/* responsive navbar for mobile */
+@media screen and (max-width: 768px) {
+body {
+  overflow-x: hidden;
+}
+
+.nav-links {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  position: fixed;
+  padding-left: 20px;
+  right: 0px;
+  height: 95vh;
+  width: 30%;
+  top: 7vh;
+  background-color: #1DB954;
+  transform: translateX(100%);
+  transition: transform 0.3s ease-in;
+}
+
+.nav-links li {
+  opacity: 0;
+  background-color: #1DB954; /* Green */
+}
+
+.burger {
+  display: block;
+  cursor: pointer;
+  color: black;
+  background-color: #1DB954; /* Green */
+}
+}
   
   .nav-active {
     transform: translateX(0%);
@@ -331,6 +374,30 @@ body {
   
   .toggle .line3 {
     transform: rotate(45deg) translate(-5px, -6px);
+  }
+
+  /* Text formatting */
+  .center-heading {
+  font-size: 28px;
+  text-align: center;
+  padding-top: 100px;
+  padding-bottom: 10px;
+  }
+  
+  .center-text {
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+  }
+
+  /* Linked text properties */
+  a {
+  color: black;
+  text-decoration: none;
+  }
+  
+  a:hover {
+  color: white;
   }
 
   #login {
