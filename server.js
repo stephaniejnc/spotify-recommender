@@ -29,6 +29,7 @@ const { ESRCH } = require('constants');
 const { get } = require('request-promise');
 
 const dotenv = require('dotenv');
+const { json } = require('body-parser');
 dotenv.config();
 
 var client_id = process.env.CLIENT_ID; // Your client id
@@ -40,7 +41,7 @@ var token = "1"
 var user = "2"
 var display_name = "display_name"
 var friend = "friend"
-var playlist = "playlist_id"
+var playlist = []
 
 function assign_global(access_token, user_id, user_display_name) {
   token = access_token
@@ -209,8 +210,18 @@ app.get('/playlist-tracks', function (req, res) {
   getTracks();
 
   function getTracks() {
+    console.log(playlist)
+    console.log(token)
+    var select_playlist;
+
+    if (playlist.length == 1) {
+      select_playlist = playlist[0]
+    } else {
+      select_playlist = playlist[1]
+    }
+
     var playlistOptions = {
-      url: `https://api.spotify.com/v1/playlists/${playlist}`,
+      url: `https://api.spotify.com/v1/playlists/${select_playlist}`,
       headers: {
         'Authorization': `Bearer ${token}`,
         'Accept': 'application/json',
@@ -219,7 +230,7 @@ app.get('/playlist-tracks', function (req, res) {
     }
 
     request.get(playlistOptions, function (error, response, body) {
-      console.log(body)
+      // console.log(body)
       res.send(body)
     })
   }
@@ -230,7 +241,8 @@ app.get('/playlist-tracks', function (req, res) {
 app.post('/playlistid', (req, res, next) => {
   console.log(req.body);
 
-  playlist = req.body.playlist;
+  playlist.push(req.body.playlist);
+  console.log(playlist)
 
   // best practices to end
   res.json({
@@ -255,16 +267,17 @@ app.post('/track', (req, res, next) => {
 })
 
 // set up receiving POST from user search, sets variable for friend username
-app.post('/setfriend', (req, res) => {
-  console.log(req.body.username)
+app.post('/searchuser', (req, res) => {
+  console.log(`Friend username: ${req.body.username}`)
   friend = req.body.username
-  res.redirect('/searchuser')
+  res.json({
+    status: 'Success'
+  })
 })
 
-app.get('/searchuser', (req, res) => {
+app.get('/searchuserplaylists', (req, res) => {
 
-  getPlaylists()
-  function getPlaylists() {
+  console.log("Server get /searchuserplaylists received for friend playlist")
     console.log(friend)
     var playlistOptions = {
       url: `https://api.spotify.com/v1/users/${friend}/playlists`,
@@ -278,10 +291,22 @@ app.get('/searchuser', (req, res) => {
     }
     
     request.get(playlistOptions, function(error, response, body) {
-      console.log(body)
-      res.send(body)
+      // console.log(body)
+      var json = JSON.parse(body)
+      if (json.error) {
+        console.log('error')
+      } else {
+        res.send(body)
+      }    
+    }).catch(error => {
+      jsonError = JSON.parse(error.error)
+      var status = jsonError.error.status
+      var message = jsonError.error.message
+      console.log("Error in searching for friend!")
+      res.status(status).send({
+        error: message
+      })
     })
-  }
 })
 
 app.get('/userinsights', (req, res) => {
