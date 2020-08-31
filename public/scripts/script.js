@@ -205,6 +205,7 @@ async function loadPlaylists() {
 
         // create span and set text to playlist description
         const description = document.createElement('span')
+        description.setAttribute('class', 'item-description');
         if (playlist.description == "") {
           description.textContent = "no playlist description";
         } else {
@@ -310,6 +311,7 @@ async function fetchInsights() {
 
         // create span and set text to artist's main genre
         const description = document.createElement('span');
+        description.setAttribute('class', 'item-category');
         if (artist.genres.length == 0) {
           description.textContent = "no artist genres";
         } else {

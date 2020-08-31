@@ -2,11 +2,21 @@
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
+    background-color: black;
   }
+
+:root {
+    --spotify-green: #1ed760;
+}
   
   .content {
     font-family: 'Montserrat', sans-serif;
     margin: 50px;
+    color: white;
+  }
+  
+  h1 {
+    color: white;
   }
   
   @import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
@@ -23,6 +33,10 @@ body {
   font-size: 14px;
   font-weight: 400;
   line-height: 1.4;
+}
+
+.audio {
+  display: none;
 }
 
 .container {
@@ -62,6 +76,7 @@ body {
 
 .grid-row a {
   text-decoration: none;
+  background-color: white;
 }
 
 .grid-item-wrapper {
@@ -84,6 +99,7 @@ body {
   height: 100%;
   width: 100%;
   position: relative;
+  background-color: white;
 }
 
 .grid-image-top {
@@ -111,6 +127,7 @@ body {
 
 .grid-item-content {
   padding: 0 20px 20px 20px;
+  background-color: white;
 }
 
 .item-title {
@@ -119,12 +136,14 @@ body {
   font-weight: 700;
   margin-bottom: 18px;
   display: block;
+  background-color: white;
 }
 
 .item-category {
   text-transform: uppercase;
   display: block;
   margin-bottom: 20px;
+  background-color: white;
   font-size: 14px;
 }
 
@@ -145,10 +164,9 @@ body {
   color: grey;
 }
 
-/* .more-info i {
-  padding-left: 5px;
-  transition-duration: .5s;
-} */
+.item-description {
+  background-color: white;
+}
 
 .more-info:hover {
   padding-left: 20px;
@@ -159,6 +177,118 @@ body {
 .grid-item:hover .grid-item-wrapper {
   padding: 2% 2%;
   margin: -2% -2%;
+}
+
+#tracks {
+  background-color: black;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr 2fr;
+
+    margin-top: 50px;
+}
+
+#playlist-info {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
+    
+    margin: 0px auto;
+}
+
+#playlist-cover {
+    grid-row: 1 / span 1;
+    padding: 30px 0px;
+    max-width: 300px;
+    max-height: 300px;
+}
+
+#playlist-name {
+    grid-row: 2 / span 1;
+    margin: 0px auto;
+    font-size: 24px;
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+
+#track-info {
+    display: flex;
+    flex-direction: column;
+    color: white;
+    margin: 0px 300px 0px 10px;
+}
+
+.track {
+    width: 100%;
+    margin: 15px 10px;
+}
+
+.track-name {
+    color: white;
+    text-decoration: none;
+    font-size: 20px;
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
+    font-weight: bold;
+}
+
+.track-name:hover {
+    background: linear-gradient(180deg,rgba(255,255,255,0) 70%, #5C5C5C 70%);
+}
+
+.duration {
+    color: #C2C2C2;
+    padding: 0px 20px;
+}
+
+#buttons {
+    grid-row: 3 / span 1;
+    grid-column: 1 / span 1;
+
+    margin-top: 30px;
+}
+
+.button {
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 24px;
+    opacity: 0.9;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+.button:hover {
+    opacity: 1.0;
+}
+
+#confirm {
+    background-color: var(--spotify-green);
+}
+
+#back {
+    background-color: #5C5C5C;
+}
+
+.icon {
+    grid-row: 1 / span 2;
+    grid-column: 1 / span 1;
+    max-width: 10px;
+    max-height: 10px;
+    margin-right: 10px;
+
+    cursor: pointer;
+}
+
+.artist {
+    margin: 10px 0px;
+    padding-left: 20px;
 }
 
 @media(max-width: 1333px) {
@@ -193,6 +323,8 @@ body {
     background-color: black;
     text-transform: capitalize;
     font-family: 'Montserrat', sans-serif;
+    position: relative;
+    z-index: 20;
   }
   
   .nav-links {
@@ -236,6 +368,23 @@ body {
     .nav-links {
       width: 50%;
     }
+    #tracks {
+      display: grid;
+      grid-template-rows: 1fr 5fr;
+      grid-template-columns: 1fr;
+    }
+
+    #playlist-info {
+        grid-row: 1 / span 1;
+        grid-column: 1 / span 1;
+    }
+
+    #track-info {
+        grid-row: 2 / span 1;
+        grid-column: 1 / span 1;
+
+        margin: 0 auto;
+    }
   }
   
   /* responsive navbar for mobile */
@@ -253,23 +402,45 @@ body {
       height: 95vh;
       width: 30%;
       top: 7vh;
-      background-color: black;
+      background-color: #222;
       transform: translateX(100%);
       transition: transform 0.3s ease-in;
     }
   
     .nav-links li {
       opacity: 0;
+      background-color: #222;
+    }
+
+    .nav-links a {
+      background-color: #222;
     }
   
     .burger {
       display: block;
       cursor: pointer;
     }
+    #tracks {
+      grid-template-rows: 1fr 5fr;
+      grid-template-columns: 1fr;
+    }
+
+    #playlist-info {
+        grid-row: 1 / span 1;
+        grid-column: 1 / span 1;
+    }
+
+    #track-info {
+        grid-row: 2 / span 1;
+        grid-column: 1 / span 1;
+
+        margin: 0 auto;
+    }
   }
   
   .nav-active {
     transform: translateX(0%);
+    background-color: #222;
   }
   
   @keyframes navLinkFade {
@@ -307,6 +478,7 @@ body {
     text-decoration: none;
     font-weight: 300;
     color:#42474b;
+    background-color:white;
     text-align: center;
     transition: all 0.2s;
   }
