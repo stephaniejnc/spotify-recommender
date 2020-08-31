@@ -10,6 +10,11 @@
     margin: 50px;
     color: white;
   }
+
+  .center-text {
+    padding: 10px;
+    font-size: 20px;
+  }
   
   h1 {
     color: white;
@@ -133,6 +138,7 @@ body {
   margin-bottom: 18px;
   display: block;
   background-color: white;
+  color: black;
 }
 
 .item-category {
@@ -141,6 +147,7 @@ body {
   margin-bottom: 20px;
   background-color: white;
   font-size: 14px;
+  color: black;
 }
 
 .item-excerpt {
@@ -162,6 +169,7 @@ body {
 
 .item-description {
   background-color: white;
+  color: black;
 }
 
 .more-info:hover {
@@ -475,6 +483,7 @@ input[type=text] {
     margin: 0 0.3em 0.3em 0;
     box-sizing: border-box;
     text-decoration: none;
+    color:white;
 }
 
 input[type=submit] {
