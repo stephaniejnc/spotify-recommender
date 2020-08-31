@@ -15,6 +15,7 @@
 </nav>
 
 <div id="tracks"></div>
+<div id="recs"></div>
 
 <script>
 
@@ -66,7 +67,8 @@
   //     return json
   // }
 
-  var temp_playlist = []
+  var temp_playlist = [];
+  var onPlay = false;
 
   async function loadTracks() {
 
@@ -109,11 +111,13 @@
         buttons_div.setAttribute('id', 'buttons');
         playlistInfo.appendChild(buttons_div);
         // confirm button
-        const confirm = document.createElement('button');
+
+        const confirm = document.createElement('a');
         confirm.setAttribute('id', 'confirm');
         confirm.setAttribute('class', 'button');
         confirm.textContent = 'Confirm';
         confirm.setAttribute('onclick', 'confirm()');
+        confirm.setAttribute('href', `/recommend`);
         buttons.appendChild(confirm);
         // back button
         const back = document.createElement('a');
@@ -122,6 +126,9 @@
         back.setAttribute('href', '/userhome');
         back.textContent = 'Back';
         buttons.appendChild(back);
+
+        //
+
         var hr_added = false;
         playlist.tracks.items.forEach(async (item) => {
           var artists = []
@@ -132,11 +139,10 @@
             artists: artists,
             audio_features: [],
             name: item.track.name,
-            track_id: item.track_id,
+            track_id: item.track.id,
             playlist_id: playlist_id
           };
           temp_playlist.push(temp_track);
-
           // division line
           if (hr_added) {
             const hr = document.createElement('hr');
@@ -158,6 +164,7 @@
           music_icon.setAttribute('src', '/images/note.png');
           music_icon.setAttribute('alt', 'A music note.');
           music_icon.setAttribute('onclick', `play('${item.track.preview_url}')`);
+
           div.appendChild(music_icon);
           // preview audio
           const preview_audio = document.createElement('audio');
@@ -187,95 +194,21 @@
         console.log(err)
       })
   }
-  ///////
-  async function loadRecommendations() {
-    await postplaylist();
-    fetch('/recommendations/')
 
-    /* TODO: Write properties for IDs and classes in CSS for the following
-      displayID = just a container for the entire display
-      recommendlist = the entire list of recommendations, nested in displayID
-      song-row = a single song listing with title and artist name, will be nested in recommendlist
-      track-item = name of the song, will be nested in song-row
-      singer-item = artist of the song, will be nested in song-row
-      ID and classes already exists:
-      class: background, container
-    */
-
-    // Setting up empty divs for population 
-    const display = document.getElementById('displayID')
-
-    // TODO: Code the following constants nexted in display div in the html/ejs file
-    const background = document.createElement('div')
-    background.setAttribute('class', 'background')
-    const container = document.createElement('div')
-    container.setAttribute('class', 'container')
-
-    const recommendlist = document.createElement('div')
-    recommendlist.setAttribute('class', 'recommend-list')
-
-    display.append(background)
-    display.append(container)
-    display.append(recommendlist)
-
-    // fetch recommendations
-    fetch('/recommendations/:playlist_id/:playlist_id_2')
-      .then(response => {
-        //error response
-        if (response.status != 200) {
-          console.log(`Error ${response.status}`)
-          const h1 = document.createElement('h1')
-          h1.textContent = `Error ${response.status}: recommendations not found`
-          app.append(h1)
-        }
-        return response.json()
-      })
-      .then(data => {
-        console.log('Finding recommendations')
-
-        //Getting the part of display reserved for showing title
-        const title = display.getElementById('center-heading')
-        title.textContent = `Recommendations`
-
-
-        data.items.forEach(recommend => {
-          //Getting the part of display reserved for showing songs
-          const songitem = display.createElement('onesong')
-          songitem.setAttribute('class', 'song-row')
-          const title = display.createElement('track')
-          title.setAttribute('class', 'track-item')
-          const singer = display.createElement('artist')
-          singer.setAttribute('class', 'singer-item')
-
-          //JSON stores track name, artist name
-          //track container where name is the key for track
-          var track = recommend.name
-          var artist = recommend.artists.name
-          const br = document.createElement('br')
-
-          //Simple printing onto frontend
-          title.textContent = track
-          singer.textContent = artist
-
-          songitem.appendChild(title)
-          songitem.appendChild(singer)
-          recommendlist.appendChild(item)
-        })
-      }).catch(err => {
-        //error response
-        console.log(err)
-        const h1 = document.createElement('h1')
-        h1.textContent = `Error ${err.status}: recommendations not retrieved, ${err.message} :(`
-        app.append(h1)
-      })
-
-  }
-
-  ///////////
+  // function play(preview_url) {
+  //   var audio = document.getElementById(preview_url);
+  //   audio.play();
+  // }
 
   function play(preview_url) {
     var audio = document.getElementById(preview_url);
-    audio.play();
+    console.log(audio);
+    console.log("ON PLAY:" + onPlay)
+    if (onPlay) {
+      audio.pause();
+    }
+    else { audio.play(); };
+    onPlay = !onPlay;
   }
 
   function millisToMinutesAndSeconds(millis) {
@@ -286,121 +219,14 @@
 
   async function confirm() {
     for (var i = 0; i < temp_playlist.length; ++i) {
-      console.log('SENT A SONG');
       postData('/track', temp_playlist[i])
         .then(res => {
           console.log(res);
           playlist_id = res.playlist_id;
         });
     }
-    await recommend(playlist_id);
+    // await recommend();
   };
-
-  async function recommend(pid) {
-    // WARNING: REPLACE PLAYLIST_ID2
-    // 7zSC7FUI9fZrZTJquxzyem
-    // 0BtFPe6vj9TTTdMYwpOitf
-    var url = `/recommendations/${pid}/4LQTmPaNjiK2iqgD5UjPcy`;
-    await fetch(url)
-      .then(response => {
-        if (response.status != 200) {
-          console.log(`Error ${response.status}`)
-        }
-        return response.json()
-      })
-      .then(playlist => {
-        console.log(playlist);
-
-        const app = document.getElementById('tracks');
-
-        // two big divs for playlist and tracks
-        // const playlistInfo = document.createElement('div');
-        // playlistInfo.setAttribute('id', 'playlist-info');
-
-        // const trackInfo = document.createElement('div');
-        // trackInfo.setAttribute('id', 'track-info');
-        // // app.appendChild(playlistInfo);
-        // app.appendChild(trackInfo);
-
-
-        // ## removed image element ## 
-        // ## removed container for confirm/back buttons ##
-        // const buttons_div = document.createElement('div');
-        // buttons_div.setAttribute('id', 'buttons');
-        // playlistInfo.appendChild(buttons_div);
-        // ## removed back button ##
-        // const back = document.createElement('a');
-        // back.setAttribute('id', 'back');
-        // back.setAttribute('class', 'button');
-        // back.setAttribute('href', '/userhome');
-        // back.textContent = 'Back';
-        // buttons.appendChild(back);
-
-
-        // var hr_added = false;
-        // playlist.tracks.items.forEach(async (item) => {
-        //   var artists = []
-        //   item.track.artists.forEach(artist => {
-        //     artists.push(artist.name)
-        //   })
-        //   var temp_track = {
-        //     artists: artists,
-        //     audio_features: [],
-        //     name: item.track.name,
-        //     track_id: item.track_id
-        //   };
-        //   temp_playlist.push(temp_track);
-        //   // division line
-        //   if (hr_added) {
-        //     const hr = document.createElement('hr');
-        //     trackInfo.appendChild(hr);
-        //   } else {
-        //     hr_added = true;
-        //   }
-
-        //   // create a row container for each track
-        //   const track = document.createElement('div');
-        //   track.setAttribute('class', 'track');
-        //   trackInfo.appendChild(track);
-        //   // container for track title + duration
-        //   const div = document.createElement('div');
-        //   track.appendChild(div);
-        //   // music note icon
-        //   const music_icon = document.createElement('img');
-        //   music_icon.setAttribute('class', 'icon');
-        //   music_icon.setAttribute('src', '/images/note.png');
-        //   music_icon.setAttribute('alt', 'A music note.');
-        //   music_icon.setAttribute('onclick', `play('${item.track.preview_url}')`);
-        //   div.appendChild(music_icon);
-        //   // preview audio
-        //   const preview_audio = document.createElement('audio');
-        //   preview_audio.setAttribute('class', 'audio');
-        //   preview_audio.setAttribute('id', item.track.preview_url);
-        //   preview_audio.setAttribute('src', item.track.preview_url);
-        //   div.appendChild(preview_audio);
-        //   // track name
-        //   const track_name = document.createElement('a');
-        //   track_name.setAttribute('href', item.track.external_urls.spotify);
-        //   track_name.setAttribute('class', 'track-name');
-        //   track_name.textContent = item.track.name;
-        //   div.appendChild(track_name);
-        //   // duration
-        //   const duration = document.createElement('span');
-        //   duration.setAttribute('class', 'duration');
-        //   duration.textContent = millisToMinutesAndSeconds(item.track.duration_ms);
-        //   div.appendChild(duration);
-        //   // artists
-        //   const artist = document.createElement('p');
-        //   artist.setAttribute('class', 'artist');
-        //   artist.textContent = item.track.album.artists[0].name;
-        //   track.appendChild(artist);
-        // });
-      })
-      .catch(err => {
-        console.log(err);
-      })
-
-  }
 
   // fetch post request
   async function postData(url = '', data = {}) {
@@ -413,21 +239,5 @@
     })
     return response.json()
   }
-
-  // fetch get request
-  // async function getData(url = '', params = []) {
-  //   params.forEach(async (param) => {
-  //     url += "/" + param
-  //   });
-  //   const response = await fetch(url, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json'
-  //     }
-  //   })
-  //   return response.json()
-  // }
-
-  // runRecommendations()
 
 </script>

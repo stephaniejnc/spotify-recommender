@@ -14,6 +14,12 @@
   h1 {
     color: white;
   }
+
+  .head2{
+    color: white;
+    text-align: center;
+    margin: 3%;
+  }
   
   @import url("https://fonts.googleapis.com/css?family=Roboto:400,700");
 
@@ -257,6 +263,11 @@ body {
       grid-template-columns: 1fr;
     }
 
+    #recs {
+      grid-template-rows: 1fr 5fr;
+      grid-template-columns: 1fr;
+    }
+
     #playlist-info {
         grid-row: 1 / span 1;
         grid-column: 1 / span 1;
@@ -268,6 +279,7 @@ body {
 
         margin: 0 auto;
     }
+
   }
   
   /* responsive navbar for mobile */
@@ -368,6 +380,18 @@ body {
     margin-top: 50px;
 }
 
+#recs {
+  background-color: black;
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+
+    margin-top: 5%;
+    margin-left: 10%;
+    margin-bottom: 5%;
+    margin-right: 10%;
+}
+
 #playlist-info {
     grid-row: 1 / span 1;
     grid-column: 1 / span 1;
@@ -388,6 +412,7 @@ body {
     grid-row: 2 / span 1;
     margin: 0px auto;
     font-size: 24px;
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
     font-weight: bold;
     color: white;
 }
@@ -399,6 +424,13 @@ body {
     margin: 0px 300px 0px 10px;
 }
 
+#rec-track-info {
+  display: flex;
+  flex-direction: column;
+  color: white;
+  margin: 0px 50px 0px 50px;
+}
+
 .track {
     width: 100%;
     margin: 15px 10px;
@@ -408,6 +440,7 @@ body {
     color: white;
     text-decoration: none;
     font-size: 20px;
+    font-family: 'Montserrat', 'Noto Sans TC', sans-serif;
     font-weight: bold;
 }
 
@@ -466,7 +499,9 @@ body {
 .artist {
     margin: 10px 0px;
     padding-left: 20px;
+    color: white;
 }
+
 input[type=text] {
     font-family: 'Montserrat', sans-serif;
     width: 80%;

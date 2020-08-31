@@ -41,6 +41,7 @@ var user = "2"
 var display_name = "display_name"
 var friend = "friend"
 var playlist = "playlist_id"
+var playlist2 = "4LQTmPaNjiK2iqgD5UjPcy";
 
 function assign_global(access_token, user_id, user_display_name) {
   token = access_token
@@ -197,7 +198,6 @@ app.get('/playlists', function (req, res) {
     }
 
     request.get(playlistOptions, function (error, response, body) {
-      // console.log(body)
       res.send(body)
     })
   }
@@ -210,8 +210,6 @@ app.get('/playlist-tracks', function (req, res) {
   getTracks();
 
   function getTracks() {
-    console.log(playlist)
-    console.log(token)
     var playlistOptions = {
       url: `https://api.spotify.com/v1/playlists/${playlist}`,
       headers: {
@@ -231,7 +229,6 @@ app.get('/playlist-tracks', function (req, res) {
 
 // set up endpoint for POST (receiving playlist id selection)
 app.post('/playlistid', (req, res, next) => {
-  console.log('I got the selected playlist ID!');
   console.log(req.body);
 
   playlist = req.body.playlist;
@@ -245,7 +242,6 @@ app.post('/playlistid', (req, res, next) => {
 
 // set up endpoint for POST
 app.post('/track', (req, res, next) => {
-  console.log('I got a track!')
   console.log(req.body)
   track = req.body
   console.log("TRACK: " + track.track_id);
@@ -310,20 +306,19 @@ app.get('/userinsights', (req, res) => {
 })
 
 // get a list of recommendations for a playlist
-app.get('/recommendations/:playlist_id/:playlist_id_2', async function (req, res) {
+app.get('/recommendations', async function (req, res) {
 
   var initPlaylist = [];
-  await getTracksByPlaylistId(req.params.playlist_id_2, async (err, songs) => {
-    console.log("PLAYLIST ID 2: " + req.params.playlist_id_2);
+  await getTracksByPlaylistId(playlist2, async (err, songs) => {
+    console.log("PLAYLIST ID 2: " + playlist2);
     if (err) { console.log(err) }
     for (var i = 0; i < songs.length; i++) {
       initPlaylist.push(songs[i].track_id);
-      console.log(songs[i].track_id);
     };
     console.log("FIRST: " + initPlaylist);
 
-    getTracksByPlaylistId(req.params.playlist_id, async (err, songs) => {
-      console.log("PLAYLIST ID: " + req.params.playlist_id);
+    getTracksByPlaylistId(playlist, async (err, songs) => {
+      console.log("PLAYLIST ID: " + playlist);
 
       if (err) { console.log(err) }
       for (var i = 0; i < songs.length; i++) {
