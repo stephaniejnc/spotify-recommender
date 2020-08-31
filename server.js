@@ -177,8 +177,9 @@ app.get('/refresh_token', function (req, res) {
 
 // GET for logged in status
 app.get('/loginstatus', function (req, res) {
-  if (token == "1") res.send(200, {"loggedin": false})  
-  else res.send(200, {"loggedin": true, "username": display_name})
+  res.send(200, {
+    "playlistArray": playlist
+  })
 })
 
 // GET logged in user's playlists
@@ -324,6 +325,13 @@ app.get('/userinsights', (req, res) => {
     console.log(body)
     res.send(body)
   })
+})
+
+
+// GET for logged in status
+app.get('/playlistArray', function (req, res) {
+  if (token == "1") res.send(200, {"loggedin": false})  
+  else res.send(200, {"loggedin": true, "username": display_name})
 })
 
 // get a list of recommendations for a playlist

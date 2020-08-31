@@ -67,6 +67,7 @@
     // }
   
   var temp_playlist = []
+  var playlist_id_array = []
 
   async function loadTracks() {
     await postplaylist();
@@ -108,11 +109,21 @@
       buttons_div.setAttribute('id', 'buttons');
       playlistInfo.appendChild(buttons_div);
       // confirm button
-      const confirm = document.createElement('button');
+      const confirm = document.createElement('a');
       confirm.setAttribute('id', 'confirm');
       confirm.setAttribute('class', 'button');
       confirm.textContent = 'Confirm';
       confirm.setAttribute('onclick', 'confirm()');
+
+      getPlaylistArray();
+      // now our local playlist id array is populated
+      
+      if (playlist_id_array.length == 1) {
+        confirm.setAttribute('href', '/searchuser');
+      } else {
+        confirm.setAttribute('href', '/recommend');
+      }
+
       buttons.appendChild(confirm);
       // back button
       const back = document.createElement('a');
@@ -217,6 +228,23 @@
       body: JSON.stringify(data)
     })
     return response.json()
+  }
+
+  function getPlaylistArray() {
+    fetch('/playlistArray')
+    .then (response => {
+      if (response.status != 200) {
+      console.log(`Error ${response.status}`)
+      }
+      return response.json()
+    })
+    .then (data => {
+      playlist_id_array = data.playlistArray;
+      console.log(`THE TWO PLAYLISTS ON BROWSER ARE: ${playlist_id_array}`);
+    })
+    .catch (err => {
+      console.log(err);
+    })
   }
 
   // fetch get request
