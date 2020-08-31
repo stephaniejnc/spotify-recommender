@@ -135,11 +135,11 @@ app.get('/callback', function (req, res) {
           console.log(body);
           assign_global(access_token, body.id, body.display_name)
           res.redirect('userhome/#' +
-          querystring.stringify({
-            access_token: access_token,
-            refresh_token: refresh_token,
-            user: body.display_name
-          }));
+            querystring.stringify({
+              access_token: access_token,
+              refresh_token: refresh_token,
+              user: body.display_name
+            }));
         })
       } else {
         res.redirect('/#' +
@@ -177,8 +177,8 @@ app.get('/refresh_token', function (req, res) {
 
 // GET for logged in status
 app.get('/loginstatus', function (req, res) {
-  if (token == "1") res.send(200, {"loggedin": false})  
-  else res.send(200, {"loggedin": true, "username": display_name})
+  if (token == "1") res.send(200, { "loggedin": false })
+  else res.send(200, { "loggedin": true, "username": display_name })
 })
 
 // GET logged in user's playlists
@@ -206,7 +206,7 @@ app.get('/playlists', function (req, res) {
 
 // GET logged in user's playlist tracks
 app.get('/playlist-tracks', function (req, res) {
-  
+
   getTracks();
 
   function getTracks() {
@@ -246,7 +246,8 @@ app.post('/playlistid', (req, res, next) => {
 
   // best practices to end
   res.json({
-      status: 'Success: playlist ID stored on server'
+    status: 'Success: playlist ID stored on server',
+    playlist: req.body.playlist
   })
 })
 
@@ -254,6 +255,7 @@ app.post('/playlistid', (req, res, next) => {
 app.post('/track', (req, res, next) => {
   console.log(req.body)
   track = req.body
+  console.log("TRACK: " + track.track_id);
 
   tracks.addTrack(track.artists, track.audio_features, track.name, track.track_id, track.playlist_id, function (err) {
     if (err) return next(err);
@@ -262,7 +264,8 @@ app.post('/track', (req, res, next) => {
 
   // best practices to end
   res.json({
-    status: 'Success: tracks of selected playlist added to Datastore'
+    status: 'Success: tracks of selected playlist added to Datastore',
+    playlist_id: track.playlist_id
   })
 })
 
@@ -278,35 +281,35 @@ app.post('/searchuser', (req, res) => {
 app.get('/searchuserplaylists', (req, res) => {
 
   console.log("Server get /searchuserplaylists received for friend playlist")
-    console.log(friend)
-    var playlistOptions = {
-      url: `https://api.spotify.com/v1/users/${friend}/playlists`,
-      headers: {
-          // use a temporary token from https://developer.spotify.com/console/get-playlists/?user_id=arixena&limit=&offset= to debug
-          // or, log in from Userhome every single time to debug (not reccomended)
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'Content-Type': 'application/json; charset=utf-8'
-      }
+  console.log(friend)
+  var playlistOptions = {
+    url: `https://api.spotify.com/v1/users/${friend}/playlists`,
+    headers: {
+      // use a temporary token from https://developer.spotify.com/console/get-playlists/?user_id=arixena&limit=&offset= to debug
+      // or, log in from Userhome every single time to debug (not reccomended)
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json; charset=utf-8'
     }
-    
-    request.get(playlistOptions, function(error, response, body) {
-      // console.log(body)
-      var json = JSON.parse(body)
-      if (json.error) {
-        console.log('error')
-      } else {
-        res.send(body)
-      }    
-    }).catch(error => {
-      jsonError = JSON.parse(error.error)
-      var status = jsonError.error.status
-      var message = jsonError.error.message
-      console.log("Error in searching for friend!")
-      res.status(status).send({
-        error: message
-      })
+  }
+
+  request.get(playlistOptions, function (error, response, body) {
+    // console.log(body)
+    var json = JSON.parse(body)
+    if (json.error) {
+      console.log('error')
+    } else {
+      res.send(body)
+    }
+  }).catch(error => {
+    jsonError = JSON.parse(error.error)
+    var status = jsonError.error.status
+    var message = jsonError.error.message
+    console.log("Error in searching for friend!")
+    res.status(status).send({
+      error: message
     })
+  })
 })
 
 app.get('/userinsights', (req, res) => {
@@ -314,30 +317,32 @@ app.get('/userinsights', (req, res) => {
   var insightOptions = {
     url: `https://api.spotify.com/v1/me/top/artists`,
     headers: {
-        'Authorization': `Bearer ${token}`,
-        'Accept': 'application/json',
-        'Content-Type': 'application/json; charset=utf-8'
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json; charset=utf-8'
     }
   }
-  
-  request.get(insightOptions, function(error, response, body) {
+
+  request.get(insightOptions, function (error, response, body) {
     console.log(body)
     res.send(body)
   })
 })
 
 // get a list of recommendations for a playlist
-app.get('/recommendations/:playlist_id/:playlist_id_2', async function (req, res) {
+app.get('/recommendations', async function (req, res) {
+
   var initPlaylist = [];
-  await getTracksByPlaylistId(req.params.playlist_id_2, async (err, songs) => {
-    console.log(req.params.playlist_id_2);
+  await getTracksByPlaylistId(playlist2, async (err, songs) => {
+    console.log("PLAYLIST ID 2: " + playlist2);
     if (err) { console.log(err) }
     for (var i = 0; i < songs.length; i++) {
       initPlaylist.push(songs[i].track_id);
     };
     console.log("FIRST: " + initPlaylist);
 
-    getTracksByPlaylistId(req.params.playlist_id, async (err, songs) => {
+    getTracksByPlaylistId(playlist, async (err, songs) => {
+      console.log("PLAYLIST ID: " + playlist);
 
       if (err) { console.log(err) }
       for (var i = 0; i < songs.length; i++) {

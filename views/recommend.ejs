@@ -1,0 +1,132 @@
+<nav>
+  <div class="logo">
+    <h3>spotify recommender</h3>
+  </div>
+  <ul class="nav-links">
+    <li><a href="/">about</a></li>
+    <li><a href="/userhome" class="active">user home</a></li>
+    <li><a href="/insights">insights</a></li>
+  </ul>
+  <div class="burger">
+    <div class="line1"></div>
+    <div class="line2"></div>
+    <div class="line3"></div>
+  </div>
+</nav>
+
+<h2 class="head2">here are your recommendations!</h2>
+
+<div id="recs"></div>
+
+<script>
+  var onPlay = false;
+
+  recommend();
+
+
+  async function recommend() {
+    var url = `/recommendations/`;
+    await fetch(url)
+      .then(response => {
+        if (response.status != 200) {
+          console.log(`Error ${response.status}`)
+        }
+        return response.json()
+      })
+      .then(playlist => {
+
+        var temp_playlist = []
+
+        const app = document.getElementById('recs');
+
+        // two big divs for playlist and tracks
+
+        const trackInfo = document.createElement('div');
+        trackInfo.setAttribute('id', 'rec-track-info');
+        app.appendChild(trackInfo);
+
+        var hr_added = false;
+
+        playlist.recommendations.tracks.forEach(async (item) => {
+          var artists = []
+          item.artists.forEach(artist => {
+            artists.push(artist.name)
+          })
+          var temp_track = {
+            artists: artists,
+            audio_features: [],
+            name: item.name,
+            track_id: item.id
+          };
+          temp_playlist.push(temp_track);
+          // division line
+          if (hr_added) {
+            const hr = document.createElement('hr');
+            trackInfo.appendChild(hr);
+          } else {
+            hr_added = true;
+          }
+
+          // create a row container for each track
+          const track = document.createElement('div');
+          track.setAttribute('class', 'track');
+          trackInfo.appendChild(track);
+          // container for track title + duration
+          const div = document.createElement('div');
+          track.appendChild(div);
+          // music note icon
+          const music_icon = document.createElement('img');
+
+          music_icon.setAttribute('class', 'icon');
+          music_icon.setAttribute('src', '/images/note.png');
+          music_icon.setAttribute('alt', 'A music note.');
+          music_icon.setAttribute('onclick', `play('${item.preview_url}')`);
+          div.appendChild(music_icon);
+          // preview audio
+          const preview_audio = document.createElement('audio');
+          preview_audio.setAttribute('class', 'audio');
+          preview_audio.setAttribute('id', item.preview_url);
+          preview_audio.setAttribute('src', item.preview_url);
+          div.appendChild(preview_audio);
+          // track name
+          const track_name = document.createElement('a');
+          track_name.setAttribute('href', item.external_urls.spotify);
+          track_name.setAttribute('class', 'track-name');
+          track_name.textContent = item.name;
+          div.appendChild(track_name);
+          // duration
+          const duration = document.createElement('span');
+          duration.setAttribute('class', 'duration');
+          duration.textContent = millisToMinutesAndSeconds(item.duration_ms);
+          div.appendChild(duration);
+          // artists
+          const artist = document.createElement('p');
+          artist.setAttribute('class', 'artist');
+          artist.textContent = item.album.artists[0].name;
+          track.appendChild(artist);
+        });
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+  };
+
+  function play(preview_url) {
+    var audio = document.getElementById(preview_url);
+    console.log("ON PLAY:" + onPlay)
+    if (onPlay) {
+      audio.pause();
+    }
+    else { audio.play() };
+    onPlay = !onPlay;
+  }
+
+  function millisToMinutesAndSeconds(millis) {
+    var minutes = Math.floor(millis / 60000);
+    var seconds = ((millis % 60000) / 1000).toFixed(0);
+    return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+  }
+
+
+</script>
