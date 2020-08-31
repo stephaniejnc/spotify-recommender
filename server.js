@@ -198,7 +198,6 @@ app.get('/playlists', function (req, res) {
     }
 
     request.get(playlistOptions, function (error, response, body) {
-      // console.log(body)
       res.send(body)
     })
   }
@@ -240,7 +239,6 @@ app.get('/playlist-tracks', function (req, res) {
 
 // set up endpoint for POST (receiving playlist id selection)
 app.post('/playlistid', (req, res, next) => {
-  console.log('I got the selected playlist ID!');
   console.log(req.body);
 
   playlist.push(req.body.playlist);
@@ -254,7 +252,6 @@ app.post('/playlistid', (req, res, next) => {
 
 // set up endpoint for POST
 app.post('/track', (req, res, next) => {
-  console.log('I got a track!')
   console.log(req.body)
   track = req.body
 
