@@ -9,6 +9,9 @@
     --spotify-green: #1ed760;
 }
   
+button {
+  background-color: white;
+}
   .content {
     font-family: 'Montserrat', sans-serif;
     margin: 50px;

@@ -115,14 +115,14 @@
       confirm.textContent = 'Confirm';
       confirm.setAttribute('onclick', 'confirm()');
 
-      await getPlaylistArray();
+      let array = await getPlaylistArray();
       // now our local playlist id array is populated
       
-      console.log(playlist_id_array);
-      if (playlist_id_array.length == 0) {
-        confirm.setAttribute('href', '/searchuser');
-      } else {
+      console.log(array);
+      if (array.length == 2) {
         confirm.setAttribute('href', '/recommend');
+      } else if (array.length < 2) {
+        confirm.setAttribute('href', '/searchuser');
       }
 
       buttons.appendChild(confirm);
@@ -217,7 +217,15 @@
             console.log(res)
       });
     }
-  };
+
+    // this isn't executing!
+    console.log(`posting data: ${playlist_id}`)
+    postData('/confirmPlaylist', playlist_id)
+      .then(res => {
+        console.log(res)
+      })
+  }
+  
 
   // fetch post request
   async function postData(url = '', data = {}) {
@@ -231,8 +239,10 @@
     return response.json()
   }
 
-  function getPlaylistArray() {
-    fetch('/playlistArray')
+  async function getPlaylistArray() {
+    var temp = []
+
+    await fetch('/playlistArray')
     .then (response => {
       if (response.status != 200) {
       console.log(`Error ${response.status}`)
@@ -241,11 +251,14 @@
     })
     .then (data => {
       playlist_id_array = data.playlistArray;
+      temp = data.playlistArray;
       console.log(`THE TWO PLAYLISTS ON BROWSER ARE: ${playlist_id_array}`);
     })
     .catch (err => {
       console.log(err);
     })
+    console.log(`temp: ${temp}`)
+    return temp;
   }
 
   // fetch get request
