@@ -38,13 +38,23 @@
   }
 
   var playlist_id = "playlist-id"
+  var playlist_2 = ""
+  var readyToRecommend = false;
 
-  // sends playlist_id to server to fetch playlists
+  // sends playlist_id to server to fetch tracks
   async function postplaylist() {
     playlist_id = await getParameterByName('playlist');
+    playlist_2 = await getParameterByName('playlist2');
+    if (playlist_2) {
+      readyToRecommend = true;
+    }
+
     clearQuery()
 
     console.log(`Selected playlist ID: ${playlist_id}`);
+    console.log(`Second playlist id: ${playlist_2}`);
+    console.log(readyToRecommend);
+
     postData('/playlistid', {
       playlist: playlist_id
     })
@@ -53,7 +63,6 @@
       })
   }
 
-<<<<<<< HEAD
     loadTracks()
 
     // get JSON object of track's audio features to pass into Datastore track entity
@@ -70,30 +79,12 @@
   
   var temp_playlist = []
   var playlist_id_array = []
-=======
-  loadTracks()
-
-  // get JSON object of track's audio features to pass into Datastore track entity
-  // async function getAudioFeatures(track_id) {
-  //     const response = await fetch(`https://api.spotify.com/v1/audio-features/${track_id}`, {
-  //       headers: {
-  //         'Authorization': ' Bearer ' + access_token,
-  //       }
-  //     })
-  //     const json = await response.json()
-  //     // console.log(json)
-  //     return json
-  // }
-
-  var temp_playlist = [];
   var onPlay = false;
->>>>>>> e443562cf6b7982417f4945b47c81f4197f323d7
 
   async function loadTracks() {
 
     await postplaylist();
     fetch('/playlist-tracks')
-<<<<<<< HEAD
     .then(response => {
       if (response.status != 200) {
       console.log(`Error ${response.status}`)
@@ -134,18 +125,23 @@
       const confirm = document.createElement('a');
       confirm.setAttribute('id', 'confirm');
       confirm.setAttribute('class', 'button');
+      if (!readyToRecommend) {
+        confirm.href = `/searchuser/?playlist=${playlist_id}`;
+      } else {
+        confirm.href = `/recommend`;
+      }
       confirm.textContent = 'Confirm';
       confirm.setAttribute('onclick', 'confirm()');
 
-      let array = await getPlaylistArray();
-      // now our local playlist id array is populated
+      // let array = await getPlaylistArray();
+      // // now our local playlist id array is populated
       
-      console.log(array);
-      if (array.length == 2) {
-        confirm.setAttribute('href', '/recommend');
-      } else if (array.length < 2) {
-        confirm.setAttribute('href', '/searchuser');
-      }
+      // console.log(array);
+      // if (array.length == 2) {
+      //   confirm.setAttribute('href', '/recommend');
+      // } else if (array.length < 2) {
+      //   confirm.setAttribute('href', '/searchuser');
+      // }
 
       buttons.appendChild(confirm);
       // back button
@@ -155,6 +151,7 @@
       back.setAttribute('href', '/userhome');
       back.textContent = 'Back';
       buttons.appendChild(back);
+
       var hr_added = false;
       playlist.tracks.items.forEach(async (item) => {
         var artists = []
@@ -176,84 +173,7 @@
           trackInfo.appendChild(hr);
         } else {
           hr_added = true;
-=======
-      .then(response => {
-        if (response.status != 200) {
-          console.log(`Error ${response.status}`)
         }
-        return response.json()
-      })
-      .then(playlist => {
-        const app = document.getElementById('tracks');
-        // two big divs for playlist and tracks
-        const playlistInfo = document.createElement('div');
-        playlistInfo.setAttribute('id', 'playlist-info');
-        const trackInfo = document.createElement('div');
-        trackInfo.setAttribute('id', 'track-info');
-        app.appendChild(playlistInfo);
-        app.appendChild(trackInfo);
-        // playlist image
-        const playlist_img = document.createElement('img');
-        playlist_img.setAttribute('id', 'playlist-cover');
-        playlist_img.setAttribute('alt', 'Playlist Cover');
-        if (playlist.images.length > 0) {
-          playlist_img.setAttribute('src', playlist.images[0].url);
->>>>>>> e443562cf6b7982417f4945b47c81f4197f323d7
-        }
-        else {
-          // placeholder image
-          playlist_img.setAttribute('src', 'http://www.scottishculture.org/themes/scottishculture/images/music_placeholder.png');
-        }
-        playlistInfo.appendChild(playlist_img);
-        // playlist name
-        const playlist_name = document.createElement('p');
-        playlist_name.setAttribute('id', 'playlist-name');
-        playlist_name.textContent = playlist.name;
-        playlistInfo.appendChild(playlist_name);
-        // container for confirm/back buttons
-        const buttons_div = document.createElement('div');
-        buttons_div.setAttribute('id', 'buttons');
-        playlistInfo.appendChild(buttons_div);
-        // confirm button
-
-        const confirm = document.createElement('a');
-        confirm.setAttribute('id', 'confirm');
-        confirm.setAttribute('class', 'button');
-        confirm.textContent = 'Confirm';
-        confirm.setAttribute('onclick', 'confirm()');
-        confirm.setAttribute('href', `/recommend`);
-        buttons.appendChild(confirm);
-        // back button
-        const back = document.createElement('a');
-        back.setAttribute('id', 'back');
-        back.setAttribute('class', 'button');
-        back.setAttribute('href', '/userhome');
-        back.textContent = 'Back';
-        buttons.appendChild(back);
-
-        //
-
-        var hr_added = false;
-        playlist.tracks.items.forEach(async (item) => {
-          var artists = []
-          item.track.artists.forEach(artist => {
-            artists.push(artist.name)
-          })
-          var temp_track = {
-            artists: artists,
-            audio_features: [],
-            name: item.track.name,
-            track_id: item.track.id,
-            playlist_id: playlist_id
-          };
-          temp_playlist.push(temp_track);
-          // division line
-          if (hr_added) {
-            const hr = document.createElement('hr');
-            trackInfo.appendChild(hr);
-          } else {
-            hr_added = true;
-          }
 
           // create a row container for each track
           const track = document.createElement('div');
@@ -322,6 +242,7 @@
   }
 
   async function confirm() {
+
     for (var i = 0; i < temp_playlist.length; ++i) {
       postData('/track', temp_playlist[i])
         .then(res => {
@@ -329,20 +250,20 @@
           playlist_id = res.playlist_id;
         });
     }
-<<<<<<< HEAD
 
-    // this isn't executing!
-    console.log(`posting data: ${playlist_id}`)
-    postData('/confirmPlaylist', playlist_id)
+    if (readyToRecommend) {
+      pushPlaylistArray();
+    }
+  }
+
+  async function pushPlaylistArray() {
+    console.log(`posting playlist array: ${playlist_id}, ${playlist_2}`)
+    postData('/confirmPlaylist', [playlist_id, playlist_2])
       .then(res => {
         console.log(res)
       })
   }
   
-=======
-    // await recommend();
-  };
->>>>>>> e443562cf6b7982417f4945b47c81f4197f323d7
 
   // fetch post request
   async function postData(url = '', data = {}) {
@@ -356,7 +277,6 @@
     return response.json()
   }
 
-<<<<<<< HEAD
   async function getPlaylistArray() {
     var temp = []
 
@@ -395,6 +315,4 @@
 
   // runRecommendations()
   
-=======
->>>>>>> e443562cf6b7982417f4945b47c81f4197f323d7
 </script>

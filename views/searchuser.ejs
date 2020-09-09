@@ -15,24 +15,56 @@
   </nav>
   
   <div class="content">
-      <h1>Userhome</h1>
+      <h1>Search user</h1>
       <br>
       <input type="text" id="friend_username" />
-      <button onclick="loadFriendPlaylists()">search</button>
+      <button onclick="loadFriendPlaylists()" id="searchButton">search</button>
 
+      <br><br>
       <div id="root"></div>
   </div>
 
   <script>
-    function success() {
-      if (document.getElementById("usernametext").value === "") {
-        document.getElementById('submit').disabled = true;
-        document.getElementById('submit').setAttribute("style", "cursor: not-allowed;");
+
+  setInterval(function success() {
+      if (!document.getElementById("friend_username").value) {
+        document.getElementById('searchButton').disabled = true;
+        document.getElementById('searchButton').setAttribute("style", "cursor: not-allowed;");
       } else {
-        document.getElementById('submit').disabled = false;
-        document.getElementById('submit').setAttribute("style", "cursor: pointer;");
+        document.getElementById('searchButton').disabled = false;
+        document.getElementById('searchButton').setAttribute("style", "cursor: pointer;");
       }
+  }, 500);
+
+    function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+  }
+
+  function clearQuery() {
+    var uri = window.location.toString();
+    if (uri.indexOf("?") > 0) {
+      var clean_uri = uri.substring(0, uri.indexOf("?"));
+      window.history.replaceState({}, document.title, clean_uri);
     }
+  }
+
+  var playlist_id = "playlist-id";
+  getPlaylist();
+
+  // sends playlist_id to server to fetch playlists
+  async function getPlaylist() {
+    playlist_id = await getParameterByName('playlist');
+    clearQuery()
+
+    console.log(`Selected playlist ID: ${playlist_id}`);
+
+  }
   
     // loadFriendPlaylists();
 
@@ -79,7 +111,7 @@
       console.log('Fetching playlists....');
     const h1 = document.createElement('h1');
     const br = document.createElement('br');
-    h1.textContent = `${user}'s playlists :)`;
+    h1.textContent = `${friend_username}'s playlists :)`;
     container.appendChild(h1);
     container.append(br);
     data.items.forEach(playlist => {
@@ -113,7 +145,7 @@
         // create span and set text to playlist title
         const title = document.createElement('span');
         title.setAttribute('class', 'item-title');
-        title.textContent = playlist.name;
+        title.textContent = playlist.name.substring(0,12);
 
         // create span and set text to playlist title
         const tracks = document.createElement('span');
@@ -132,7 +164,8 @@
 
         // create span for more info/view playlist
         const viewPlaylist = document.createElement('a');
-        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}`;
+        // also pass the first selected/confirmed playlist
+        viewPlaylist.href = `/playlist/?playlist=${playlist.id}&access=${access_token}&playlist2=${playlist_id}`;
         viewPlaylist.setAttribute('id', 'playlist-id');
         viewPlaylist.setAttribute('class', 'more-info');
         viewPlaylist.textContent = "select playlist";

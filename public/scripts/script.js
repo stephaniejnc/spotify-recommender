@@ -197,7 +197,7 @@ async function loadPlaylists() {
         // create span and set text to playlist title
         const title = document.createElement('span');
         title.setAttribute('class', 'item-title');
-        title.textContent = playlist.name;
+        title.textContent = playlist.name.substring(0,12);
 
         // create span and set text to playlist title
         const tracks = document.createElement('span');
