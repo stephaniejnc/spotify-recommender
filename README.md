@@ -9,7 +9,7 @@ Music taste is unique to everyone and is hard to describe in words - with this a
 ![Spotify App Flow](demo/spotify_app_flow.png)
 
 ### Video demos
-You can play them in the /demo folder or **click on the images below** to watch the Youtube demos!
+**Click on the images below** to watch the Youtube demos!
 
 #### Desktop view
 [![Watch the desktop demo](demo/desktop_preview.png)](https://youtu.be/qDLzCbezRU8)
