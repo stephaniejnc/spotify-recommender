@@ -41,7 +41,8 @@ var token = "1"
 var user = "2"
 var display_name = "display_name"
 var friend = "friend"
-var playlist = []
+var playlist = "playlist"
+var playlist_array = []
 
 function assign_global(access_token, user_id, user_display_name) {
   token = access_token
@@ -176,6 +177,12 @@ app.get('/refresh_token', function (req, res) {
 });
 
 // GET for logged in status
+app.get('/playlistArray', function (req, res) {
+  res.send(200, {
+    "playlistArray": playlist_array
+  })
+})
+
 app.get('/loginstatus', function (req, res) {
   if (token == "1") res.send(200, { "loggedin": false })
   else res.send(200, { "loggedin": true, "username": display_name })
@@ -210,14 +217,13 @@ app.get('/playlist-tracks', function (req, res) {
   getTracks();
 
   function getTracks() {
-    console.log(playlist)
-    console.log(token)
+    console.log(playlist_array)
     var select_playlist;
 
-    if (playlist.length == 1) {
-      select_playlist = playlist[0]
-    } else {
-      select_playlist = playlist[1]
+    if (playlist_array.length == 0) {
+      select_playlist = playlist
+    } else { // else there is already 1 CONFIRMED playlist in the array
+      select_playlist = playlist_array[1]
     }
 
     var playlistOptions = {
@@ -239,21 +245,33 @@ app.get('/playlist-tracks', function (req, res) {
 
 // set up endpoint for POST (receiving playlist id selection)
 app.post('/playlistid', (req, res, next) => {
-  console.log(req.body);
-
-  playlist.push(req.body.playlist);
-  console.log(playlist)
+  playlist = req.body.playlist;
+  console.log(`/playlistid: ${playlist}`)
 
   // best practices to end
   res.json({
-    status: 'Success: playlist ID stored on server',
-    playlist: req.body.playlist
+      status: 'Success: current playlist ID stored on server'
+  })
+})
+
+// set up endpoint for POST (receiving confirmed playlist id selection)
+app.post('/confirmPlaylist', (req, res, next) => {
+  var temp_playlist = req.body
+  console.log(`/confirmPlaylist: ${temp_playlist}`)
+
+  playlist_array = temp_playlist;
+  console.log(playlist_array[0])
+  console.log(playlist_array[1])
+
+  // best practices to end
+  res.json({
+    status: 'Success: playlist ID ARRAY stored on server',
+    playlist: playlist_array
   })
 })
 
 // set up endpoint for POST
 app.post('/track', (req, res, next) => {
-  console.log(req.body)
   track = req.body
   console.log("TRACK: " + track.track_id);
 
@@ -329,20 +347,27 @@ app.get('/userinsights', (req, res) => {
   })
 })
 
+
+// GET for logged in status
+app.get('/loginstatus', function (req, res) {
+  if (token == "1") res.send(200, {"loggedin": false})  
+  else res.send(200, {"loggedin": true, "username": display_name})
+})
+
 // get a list of recommendations for a playlist
 app.get('/recommendations', async function (req, res) {
 
   var initPlaylist = [];
-  await getTracksByPlaylistId(playlist2, async (err, songs) => {
-    console.log("PLAYLIST ID 2: " + playlist2);
+  await getTracksByPlaylistId(playlist_array[1], async (err, songs) => {
+    console.log("PLAYLIST ID 2: " + playlist_array[1]);
     if (err) { console.log(err) }
     for (var i = 0; i < songs.length; i++) {
       initPlaylist.push(songs[i].track_id);
     };
     console.log("FIRST: " + initPlaylist);
 
-    getTracksByPlaylistId(playlist, async (err, songs) => {
-      console.log("PLAYLIST ID: " + playlist);
+    getTracksByPlaylistId(playlist_array[0], async (err, songs) => {
+      console.log("PLAYLIST ID: " + playlist_array[0]);
 
       if (err) { console.log(err) }
       for (var i = 0; i < songs.length; i++) {
